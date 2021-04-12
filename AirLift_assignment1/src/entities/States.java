@@ -1,0 +1,23 @@
+package entities;
+
+/**
+ * 
+ * @author nuno
+ * State of active entities.
+ */
+public enum States {
+	AT_TRANSFER_GATE,
+	READY_FOR_BOARDING,
+	WAITING_FOR_BOARDING,
+	FLYING_FORWARD, 
+	DEBOARDING,
+	FLYING_BACK,
+	WAIT_FOR_NEXT_FLIGHT,
+	WAIT_FOR_PASSENGER,
+	CHECK_PASSENGER,
+	READY_TO_FLY,
+	GOING_TO_AIRPORT,
+	IN_QUEUE,
+	IN_FLIGHT,
+	AT_DESTINATION
+}
