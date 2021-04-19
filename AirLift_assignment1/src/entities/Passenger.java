@@ -32,20 +32,22 @@ public class Passenger extends Thread {
 	
 	@Override
 	public void run() {
-		travelToAirport();
+		departure.travelToAirport();
 		departure.waitInQueue();
 		departure.showDocuments();
 		plane.boardThePlane();
 		plane.waitForEndOfFlight();
-		destination.leaveThePlane();
+		plane.leaveThePlane();
 	}
 	
+	/*
 	public void travelToAirport() {
+		this.state = States.GOING_TO_AIRPORT;
 		try {
 			sleep((long) (new Random().nextInt(5)));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
-	
+	*/
 }

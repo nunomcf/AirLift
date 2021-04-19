@@ -8,7 +8,7 @@ public class AirLift {
 	/**
 	 * Number of passengers
 	 */
-	public static int N_PASSENGERS = 20;
+	public static int N_PASSENGERS = 21;
 	
 	/**
 	 * Minimum number of passengers in a flight
@@ -37,7 +37,7 @@ public class AirLift {
 		Pilot pilot = new Pilot(departure, destination, plane);
 		
 		for(int i = 0; i < N_PASSENGERS; i++) {
-			passengers[i] = new Passenger(departure, destination, plane);
+			passengers[i] = new Passenger(i, departure, destination, plane);
 			passengers[i].start();
 		}
 		hostess.start();

@@ -1,4 +1,5 @@
 package entities;
+import main.AirLift;
 import sharedRegions.*;
 
 
@@ -9,20 +10,37 @@ public class Hostess extends Thread {
 	 */
 	private States state;
 	
-	private DepartureAirport dep;
-	private DestinationAirport dest;
-	private Plane p;
+	private DepartureAirport departure;
+	private DestinationAirport destination;
+	private Plane plane;
 	
 	public Hostess(DepartureAirport dep, DestinationAirport dest, Plane p) {
 		this.state = States.WAIT_FOR_NEXT_FLIGHT;
-		this.dep = dep;
-		this.dest = dest;
-		this.p = p;
+		this.departure = dep;
+		this.destination = dest;
+		this.plane = p;
+	}
+	
+	public void setState(States s) {
+		this.state = s;
 	}
 	
 	@Override
 	public void run() {
 		
+		int currentPassengers = 0;
+		boolean queueEmpty = false;
+
+		while(true) {
+			if(departure.waitForNextFlight()) break;
+			departure.prepareForPassBoarding();			
+			while(currentPassengers <= AirLift.FLIGHT_MAX_P) {
+				currentPassengers = departure.checkDocuments();
+				queueEmpty = departure.waitForNextPassenger();
+				if(queueEmpty && currentPassengers >= AirLift.FLIGHT_MIN_P) break;
+			}
+			departure.informPlaneReadyToTakeOff();
+		}
 	}
 	
 	
