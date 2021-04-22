@@ -24,12 +24,15 @@ public class Plane {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
 		flight_finished = false;
+		passengersSeated.add(p.getPassengerId());
+		System.out.printf("[PASSENGER %d]: Boarding the plane...\n", p.getPassengerId());
 	}
 	
 	// passenger
 	public synchronized void waitForEndOfFlight() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
+		System.out.printf("[PASSENGER %d]: Waiting for end of flight...\n", p.getPassengerId());
 		while(!flight_finished) {
 			try {
 				wait();
@@ -41,6 +44,12 @@ public class Plane {
 	public synchronized void leaveThePlane() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.AT_DESTINATION);
+		passengersSeated.remove(p.getPassengerId());
+		
+		if(passengersSeated.size() == 0) {
+			notifyAll();
+		}
+		System.out.printf("[PASSENGER %d]: Leaving the plane...\n", p.getPassengerId());
 	}
 
 
@@ -48,8 +57,18 @@ public class Plane {
 	public synchronized void announceArrival() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.DEBOARDING);
+		System.out.printf("[PILOT]: Announce arrival.\n");
+		
 		flight_finished = true;
 		notifyAll();
+		while(passengersSeated.size() != 0) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.printf("[PILOT]: All passengers have left the plane.\n");
 	}
 	
 

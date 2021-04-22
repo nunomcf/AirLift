@@ -18,11 +18,13 @@ public class DestinationAirport {
 	public synchronized void flyToDeparturePoint() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.FLYING_BACK);
+		System.out.printf("[PILOT]: Flying to departure point...\n");
 		try {
-			Thread.sleep((long) (new Random().nextInt(5)));
+			Thread.sleep((long) (new Random().nextInt(10)));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 }

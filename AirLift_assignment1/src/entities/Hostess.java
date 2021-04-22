@@ -14,6 +14,8 @@ public class Hostess extends Thread {
 	private DestinationAirport destination;
 	private Plane plane;
 	
+	private boolean lastFlight = false;
+	
 	public Hostess(DepartureAirport dep, DestinationAirport dest, Plane p) {
 		this.state = States.WAIT_FOR_NEXT_FLIGHT;
 		this.departure = dep;
@@ -27,20 +29,26 @@ public class Hostess extends Thread {
 	
 	@Override
 	public void run() {
-		
-		int currentPassengers = 0;
-		boolean queueEmpty = false;
-
+		int currentNumberPassengers;
+		int totalNumberPassengersTransported = 0;
+		boolean canTakeOff = false;
 		while(true) {
-			if(departure.waitForNextFlight()) break;
+			currentNumberPassengers = 0;
+			lastFlight = departure.waitForNextFlight();
+			if(totalNumberPassengersTransported == AirLift.N_PASSENGERS) break; // no more passengers to transport, end simulation
 			departure.prepareForPassBoarding();			
-			while(currentPassengers <= AirLift.FLIGHT_MAX_P) {
-				currentPassengers = departure.checkDocuments();
-				queueEmpty = departure.waitForNextPassenger();
-				if(queueEmpty && currentPassengers >= AirLift.FLIGHT_MIN_P) break;
+			while(currentNumberPassengers < AirLift.FLIGHT_MAX_P) {
+				currentNumberPassengers = departure.checkDocuments();
+				canTakeOff = departure.waitForNextPassenger(currentNumberPassengers, lastFlight);
+				if(canTakeOff) {
+					System.out.printf("\n[CAN TAKE OFF] -> %d\n\n", currentNumberPassengers);
+					break;
+				}
 			}
+			totalNumberPassengersTransported += currentNumberPassengers;
 			departure.informPlaneReadyToTakeOff();
 		}
+		
 	}
 	
 	

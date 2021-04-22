@@ -9,6 +9,9 @@ public class DepartureAirport {
 	private Repository repo;
 	
 	private Queue<Integer> passengersQueue;
+	private boolean[] documents;
+	private boolean[] handedDocs;
+	private boolean[] canBoardPlane;
 	
 	// variable to store the number of passengers transported
 	private int numberPassengersTransported = 0;
@@ -30,7 +33,12 @@ public class DepartureAirport {
 	public DepartureAirport(Repository repo) {
 		this.repo = repo;
 		passengersQueue = new LinkedList<>();
-		
+		documents = new boolean[AirLift.N_PASSENGERS];
+		canBoardPlane = new boolean[AirLift.N_PASSENGERS];
+		handedDocs = new boolean[AirLift.N_PASSENGERS];
+		Arrays.fill(documents, false);
+		Arrays.fill(canBoardPlane, false);
+		Arrays.fill(handedDocs, false);
 	}
 	
 	public int getPassengersTransported() {
@@ -45,8 +53,9 @@ public class DepartureAirport {
 	public synchronized void travelToAirport() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.GOING_TO_AIRPORT);
+		System.out.printf("[PASSENGER %d]: Going to airport...\n", p.getPassengerId());
 		try {
-			Thread.sleep((long) (new Random().nextInt(5)));
+			Thread.sleep((long) (new Random().nextInt(10)));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -57,41 +66,48 @@ public class DepartureAirport {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
 		passengersQueue.add(p.getPassengerId());
+		System.out.printf("queue size ---> %d...\n", passengersQueue.size());
 		notifyAll();
-		while(askDocument_id != p.getPassengerId()) {
+		System.out.printf("[PASSENGER %d]: Waiting in queue...\n", p.getPassengerId());
+		while(!documents[p.getPassengerId()]) {
 			try {
 				wait();
 			} catch (InterruptedException e) {}
 		}
+		
 	}
 	
 	// passenger
 	public synchronized void showDocuments() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
-		checkDocument_id = p.getPassengerId();
+		handedDocs[p.getPassengerId()] = true;
 		notifyAll();
-		while(canBoard != p.getPassengerId()) {
+		while(!canBoardPlane[p.getPassengerId()]) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		System.out.printf("[PASSENGER %d]: Showed his documents.\n", p.getPassengerId());
+		numberPassengersTransported++;
 	}
 	
 	// pilot
 	public synchronized boolean parkAtTransferGate() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.AT_TRANSFER_GATE);	
-		if(numberPassengersTransported < AirLift.N_PASSENGERS) {
+		if(AirLift.N_PASSENGERS - numberPassengersTransported > AirLift.FLIGHT_MIN_P) {
 			lastFlight = false;
-			// notifyAll();
+			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = FALSE).\n");
+			notifyAll();
 			return false;
 		}
 		else{
 			lastFlight = true;
 			notifyAll();
+			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = TRUE).\n");
 			return true;
 		}
 	}
@@ -100,6 +116,7 @@ public class DepartureAirport {
 	public synchronized void informPlaneReadyForBoarding() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.READY_FOR_BOARDING);	
+		System.out.printf("[PILOT]: Inform plane ready for boarding.\n");
 		planeReady = true;
 		notifyAll();
 	}
@@ -108,6 +125,7 @@ public class DepartureAirport {
 	public synchronized void waitForAllInBoard() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.WAITING_FOR_BOARDING);
+		System.out.printf("[PILOT]: Waiting for boarding...\n");
 		while(!boardingCompleted) {
 			try {
 				wait();
@@ -123,8 +141,9 @@ public class DepartureAirport {
 	public synchronized void flyToDestinationPoint() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.FLYING_FORWARD);
+		System.out.printf("[PILOT]: Flying forward...\n");
 		try {
-			Thread.sleep((long) (new Random().nextInt(5)));
+			Thread.sleep((long) (new Random().nextInt(15)));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -134,8 +153,8 @@ public class DepartureAirport {
 	public synchronized boolean waitForNextFlight() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_NEXT_FLIGHT);
-		
-		while(!planeReady && !lastFlight) {
+		System.out.printf("[HOSTESS]: Waiting for next flight...\n");
+		while(!planeReady) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -151,8 +170,20 @@ public class DepartureAirport {
 	public synchronized void prepareForPassBoarding() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
+		System.out.printf("[HOSTESS]: Prepare for pass boarding...\n");
 		
-		currentFlightPassengers = 0; // reset variable
+		// reset variables
+		currentFlightPassengers = 0; 
+		askDocument_id = -1;
+		checkDocument_id = -1;
+		canBoard = -1;
+		
+		System.out.print("QUEUE: ");
+		for (int element : passengersQueue) {
+			  System.out.printf("%d  ", element);
+			}
+		System.out.println();
+		
 		while(passengersQueue.size() == 0) { // waits for the first passenger
 			try {
 				wait();
@@ -160,48 +191,82 @@ public class DepartureAirport {
 				e.printStackTrace();
 			}
 		}
+
 	}
 	
 	
 	// hostess
 	public synchronized int checkDocuments() {
-		askDocument_id = passengersQueue.poll(); // get the passenger at the head of the queue
+		Hostess h = (Hostess) Thread.currentThread();
+		h.setState(States.CHECK_PASSENGER);
+		
+		askDocument_id = passengersQueue.remove(); // get the passenger at the head of the queue
+		
+		System.out.printf("[HOSTESS]: Ask documents of passenger %d...\n", askDocument_id);
+		documents[askDocument_id] = true;
 		notifyAll();
-		while(askDocument_id != checkDocument_id) {
+
+		while(!handedDocs[askDocument_id]) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		System.out.printf("[HOSTESS]: Passenger %d handed this documents...\n", askDocument_id);
 		currentFlightPassengers += 1;
 		return currentFlightPassengers;
 	}
 	
 	
 	// hostess
-	public synchronized boolean waitForNextPassenger() {
+	public synchronized boolean waitForNextPassenger(int currentPassengers, boolean lastF) {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
-		
-		canBoard = checkDocument_id; // authorize the last passengers that showed his documents
+		System.out.printf("[HOSTESS]: Waiting for next passenger...\n");
+
+		//canBoard = checkDocument_id; // authorize the last passengers that showed his documents
+		canBoardPlane[askDocument_id] = true;
 		askDocument_id = -1;
 		checkDocument_id = -1;
 		notifyAll();
 		
-		while(passengersQueue.size() == 0) { // waits for the next passenger
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		int numberPassengersLeft = AirLift.N_PASSENGERS - numberPassengersTransported;
+		
+		if(lastF) {
+			if(currentPassengers == numberPassengersLeft) {
+				// if it is the last flight and there are no more passengers, can take off
+				System.out.printf("[HOSTESS]: LAST FLIGHT, can take off with %d passengers\n\n", currentPassengers);
+				return true;
+			}
+			else {
+				// otherwise, wait for another passenger
+				while(passengersQueue.size() == 0) { // waits for the next passenger
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				System.out.printf("[HOSTESS]: LAST FLIGHT, wait for more passengers\n\n", currentPassengers);
+				return false;
+			}
+		} 
+		else {
+			if(passengersQueue.size() == 0 && currentPassengers >= AirLift.FLIGHT_MIN_P) {
+				return true;
+			}
+			else {
+				while(passengersQueue.size() == 0) { // waits for the next passenger
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				return false;
 			}
 		}
-		
-		
-		if (passengersQueue.size() - 1 == 0) 
-			return true;
-		else 
-			return false;
 	}
 	
 	// hostess
@@ -209,6 +274,8 @@ public class DepartureAirport {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.READY_TO_FLY);
 		boardingCompleted = true;
+		planeReady = false;
+		System.out.printf("[HOSTESS]: Inform plane ready to takeoff...\n");
 		notifyAll();
 	}
 }

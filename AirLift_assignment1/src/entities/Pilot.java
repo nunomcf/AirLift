@@ -14,6 +14,8 @@ public class Pilot extends Thread {
 	private DestinationAirport destination;
 	private Plane plane;
 	
+	private boolean lastFlight = false;
+	
 	public Pilot(DepartureAirport dep, DestinationAirport dest, Plane p) {
 		this.state = States.AT_TRANSFER_GATE;
 		this.departure = dep;
@@ -24,16 +26,17 @@ public class Pilot extends Thread {
 	@Override
 	public void run() {
 		while(true) {
-			if(departure.parkAtTransferGate()) break;
+			lastFlight = departure.parkAtTransferGate();
 			departure.informPlaneReadyForBoarding();
 			departure.waitForAllInBoard();
 			departure.flyToDestinationPoint();
 			plane.announceArrival();
 			destination.flyToDeparturePoint();
+			if(lastFlight) break;
 		}
 	}
 	
 	public void setState(States s) {
-		this.state = state;
+		this.state = s;
 	}
 }
