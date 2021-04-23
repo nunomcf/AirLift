@@ -34,16 +34,22 @@ public class Hostess extends Thread {
 		boolean canTakeOff = false;
 		while(true) {
 			currentNumberPassengers = 0;
-			lastFlight = departure.waitForNextFlight();
+			System.out.println("Numero total de transportados: "+ totalNumberPassengersTransported);
 			if(totalNumberPassengersTransported == AirLift.N_PASSENGERS) break; // no more passengers to transport, end simulation
+			departure.waitForNextFlight();
+			
+			
+			
 			departure.prepareForPassBoarding();			
 			while(currentNumberPassengers < AirLift.FLIGHT_MAX_P) {
+				System.out.println("currentNumberPassengers:"+ currentNumberPassengers);
 				currentNumberPassengers = departure.checkDocuments();
-				canTakeOff = departure.waitForNextPassenger(currentNumberPassengers, lastFlight);
+				canTakeOff = departure.waitForNextPassenger(currentNumberPassengers);
 				if(canTakeOff) {
 					System.out.printf("\n[CAN TAKE OFF] -> %d\n\n", currentNumberPassengers);
 					break;
 				}
+				
 			}
 			totalNumberPassengersTransported += currentNumberPassengers;
 			departure.informPlaneReadyToTakeOff();

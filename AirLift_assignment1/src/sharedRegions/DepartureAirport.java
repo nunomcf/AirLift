@@ -24,6 +24,10 @@ public class DepartureAirport {
 	
 	private boolean boardingCompleted = false;
 	
+	private boolean showedDocuments=false;
+	
+	private int countTestShowDocuments=0;
+	
 	
 	private int askDocument_id = -1;
 	private int checkDocument_id = -1;
@@ -79,10 +83,12 @@ public class DepartureAirport {
 	
 	// passenger
 	public synchronized void showDocuments() {
+		showedDocuments=false;
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
 		handedDocs[p.getPassengerId()] = true;
 		notifyAll();
+		
 		while(!canBoardPlane[p.getPassengerId()]) {
 			try {
 				wait();
@@ -90,26 +96,30 @@ public class DepartureAirport {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("showCanBoardPlane: "+canBoardPlane[p.getPassengerId()]);
 		System.out.printf("[PASSENGER %d]: Showed his documents.\n", p.getPassengerId());
 		numberPassengersTransported++;
+		showedDocuments=true;
+		countTestShowDocuments++;
 	}
 	
 	// pilot
 	public synchronized boolean parkAtTransferGate() {
 		Pilot pilot = (Pilot) Thread.currentThread();
-		pilot.setState(States.AT_TRANSFER_GATE);	
+		pilot.setState(States.AT_TRANSFER_GATE);
+		
+		
 		if(AirLift.N_PASSENGERS - numberPassengersTransported > AirLift.FLIGHT_MIN_P) {
 			lastFlight = false;
 			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = FALSE).\n");
-			notifyAll();
-			return false;
+			
 		}
 		else{
 			lastFlight = true;
-			notifyAll();
 			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = TRUE).\n");
-			return true;
 		}
+		notifyAll();
+		return lastFlight;
 	}
 	
 	// pilot
@@ -150,7 +160,7 @@ public class DepartureAirport {
 	}
 	
 	// hostess - check again not sure
-	public synchronized boolean waitForNextFlight() {
+	public synchronized void waitForNextFlight() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_NEXT_FLIGHT);
 		System.out.printf("[HOSTESS]: Waiting for next flight...\n");
@@ -161,8 +171,6 @@ public class DepartureAirport {
 				e.printStackTrace();
 			}
 		}
-		if(lastFlight) return true;
-		else return false;
 	}
 	
 	
@@ -220,26 +228,28 @@ public class DepartureAirport {
 	
 	
 	// hostess
-	public synchronized boolean waitForNextPassenger(int currentPassengers, boolean lastF) {
+	public synchronized boolean waitForNextPassenger(int currentPassengers) {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
 		System.out.printf("[HOSTESS]: Waiting for next passenger...\n");
 
 		//canBoard = checkDocument_id; // authorize the last passengers that showed his documents
+		System.out.println("askDocument_id: "+askDocument_id);
 		canBoardPlane[askDocument_id] = true;
 		askDocument_id = -1;
 		checkDocument_id = -1;
 		notifyAll();
 		
-		int numberPassengersLeft = AirLift.N_PASSENGERS - numberPassengersTransported;
+		int numberPassengersLeft = AirLift.N_PASSENGERS  - numberPassengersTransported;
 		
-		if(lastF) {
-			if(currentPassengers == numberPassengersLeft) {
+		if(lastFlight) {
+			if(currentPassengers == numberPassengersLeft && passengersQueue.size() == 0 ) {
 				// if it is the last flight and there are no more passengers, can take off
 				System.out.printf("[HOSTESS]: LAST FLIGHT, can take off with %d passengers\n\n", currentPassengers);
 				return true;
 			}
 			else {
+				System.out.printf("[HOSTESS]: Estive aqui\n");
 				// otherwise, wait for another passenger
 				while(passengersQueue.size() == 0) { // waits for the next passenger
 					try {
@@ -251,9 +261,8 @@ public class DepartureAirport {
 				System.out.printf("[HOSTESS]: LAST FLIGHT, wait for more passengers\n\n", currentPassengers);
 				return false;
 			}
-		} 
-		else {
-			if(passengersQueue.size() == 0 && currentPassengers >= AirLift.FLIGHT_MIN_P) {
+		} else {
+			if(currentPassengers >= AirLift.FLIGHT_MIN_P) { 
 				return true;
 			}
 			else {
@@ -273,9 +282,13 @@ public class DepartureAirport {
 	public synchronized void informPlaneReadyToTakeOff() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.READY_TO_FLY);
-		boardingCompleted = true;
-		planeReady = false;
-		System.out.printf("[HOSTESS]: Inform plane ready to takeoff...\n");
-		notifyAll();
+		System.out.println("countTestShowDocuments= "+countTestShowDocuments);
+		if(showedDocuments) {
+			boardingCompleted = true;
+			planeReady = false;
+			System.out.printf("[HOSTESS]: Inform plane ready to takeoff...\n");
+			notifyAll();
+		}
+		
 	}
 }

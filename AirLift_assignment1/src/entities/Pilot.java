@@ -32,7 +32,10 @@ public class Pilot extends Thread {
 			departure.flyToDestinationPoint();
 			plane.announceArrival();
 			destination.flyToDeparturePoint();
-			if(lastFlight) break;
+			System.out.println("lastFlight:"+lastFlight);
+			if(lastFlight) {
+				break;
+			}
 		}
 	}
 	

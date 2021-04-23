@@ -8,7 +8,7 @@ public class AirLift {
 	/**
 	 * Number of passengers
 	 */
-	public static int N_PASSENGERS = 10;
+	public static int N_PASSENGERS = 21;
 	
 	/**
 	 * Minimum number of passengers in a flight
@@ -65,5 +65,6 @@ public class AirLift {
 		} catch(InterruptedException e) {}
 		
 		System.out.print("Simulation finished...\n");
+		
 	}
 }
