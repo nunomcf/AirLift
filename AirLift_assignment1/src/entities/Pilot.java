@@ -28,12 +28,12 @@ public class Pilot extends Thread {
 		while(true) {
 			lastFlight = departure.parkAtTransferGate();
 			departure.informPlaneReadyForBoarding();
-			departure.waitForAllInBoard();
+			plane.waitForAllInBoard();
 			departure.flyToDestinationPoint();
 			plane.announceArrival();
 			destination.flyToDeparturePoint();
-			System.out.println("lastFlight:"+lastFlight);
 			if(lastFlight) {
+				System.out.println("last flight break");
 				break;
 			}
 		}
