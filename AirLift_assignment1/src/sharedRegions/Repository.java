@@ -36,6 +36,9 @@ public class Repository {
     public Repository() throws FileNotFoundException {
     	f = new File(AirLift.filename);
         pw = new PrintWriter(f);
+        pw.write("Airlift - Description of the internal state\n");
+        pw.write("PT    HT	    P00	 P01   P02   P03   P04   P05   P06   P07   P08   P09   P10   P11   P12   P13   P14   P15   P16   P17   P18   P19   P20   InQ   InF   PTAL\n");
+        pw.flush();
         
         pilotState = States.AT_TRANSFER_GATE;
         hostessState = States.WAIT_FOR_NEXT_FLIGHT;
@@ -62,6 +65,17 @@ public class Repository {
            export();
        }
    }
+   
+   /**
+   *
+   * @param hostessState state of the hostess
+   */
+  public synchronized void setHostessState(States hostessState) {
+      if (this.hostessState != hostessState) {
+          this.hostessState = hostessState;
+          export();
+      }
+  }
 
    /**
     *
@@ -81,7 +95,7 @@ public class Repository {
     */
    private void export() {
        String output = getInternalState();
-       System.out.println(output);
+       //System.out.println(output);
        pw.write(output);
        pw.flush();
    }
@@ -94,15 +108,14 @@ public class Repository {
        String str = stateAbrv[pilotState.ordinal()] + "  ";
        str += String.format("%s ", stateAbrv[hostessState.ordinal()]);
        
-/*
-       for (int i = 0; i < RepairShop.N; i++) {
-           str += String.format(" %s %02d %s %s ", stateAbrv[customerStates[i].ordinal()], currentCarId[i],
-                   booleanToStr(wantRental[i]), booleanToStr(carRepaired[i]));
 
-           if ((i+1) % 10 == 0)
+       for (int i = 0; i < AirLift.N_PASSENGERS; i++) {
+           str += String.format(" %s ", stateAbrv[passengersState[i].ordinal()]);
+
+           if ((i+1) % AirLift.N_PASSENGERS == 0)
                str += "\n              ";
        }
-
+/*
        str += String.format("  %02d %02d %02d", customerQueue, waitingForKey, finishedJobs);
        str += String.format("                  %02d  %02d", customerCars, replacementCars);
        str += String.format("          %02d ", reqCount);

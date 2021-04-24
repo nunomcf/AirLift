@@ -27,6 +27,8 @@ public class Plane {
 	public synchronized void boardThePlane() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
+		repo.setPassengerState(p.getPassengerId(), States.IN_FLIGHT, true);
+		
 		flight_finished = false;
 		passengersSeated.add(p.getPassengerId());
 		n_passengersBoarded++;
@@ -38,6 +40,8 @@ public class Plane {
 	public synchronized void waitForEndOfFlight() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
+		repo.setPassengerState(p.getPassengerId(), States.IN_FLIGHT, true);
+		
 		System.out.printf("[PASSENGER %d]: Waiting for end of flight...\n", p.getPassengerId());
 		while(!flight_finished) {
 			try {
@@ -50,6 +54,7 @@ public class Plane {
 	public synchronized void leaveThePlane() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.AT_DESTINATION);
+		repo.setPassengerState(p.getPassengerId(), States.AT_DESTINATION, true);
 		passengersSeated.remove(p.getPassengerId());
 		if(passengersSeated.size() == 0) {
 			allPassengersLeft = true;
@@ -62,6 +67,7 @@ public class Plane {
 	public synchronized void informPlaneReadyToTakeOff(int n_passengers) {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.READY_TO_FLY);
+		repo.setHostessState(States.READY_TO_FLY);
 
 		while(n_passengers != n_passengersBoarded) {
 			try {
@@ -80,6 +86,8 @@ public class Plane {
 	public synchronized void waitForAllInBoard() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.WAITING_FOR_BOARDING);
+		repo.setPilotState(States.WAITING_FOR_BOARDING);
+		
 		System.out.printf("[PILOT]: Waiting for boarding...\n");
 		while(!boardingCompleted) {
 			try {
@@ -96,6 +104,8 @@ public class Plane {
 	public synchronized void announceArrival() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.DEBOARDING);
+		repo.setPilotState(States.DEBOARDING);
+		
 		System.out.printf("[PILOT]: Announce arrival.\n");
 		
 		flight_finished = true;

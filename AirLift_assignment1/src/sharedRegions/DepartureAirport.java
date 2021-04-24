@@ -50,6 +50,9 @@ public class DepartureAirport {
 	public synchronized void travelToAirport() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.GOING_TO_AIRPORT);
+		repo.setPassengerState(p.getPassengerId(), States.GOING_TO_AIRPORT, true);
+		
+		
 		System.out.printf("[PASSENGER %d]: Going to airport...\n", p.getPassengerId());
 		try {
 			Thread.sleep((long) (new Random().nextInt(10)));
@@ -62,6 +65,8 @@ public class DepartureAirport {
 	public synchronized void waitInQueue() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
+		repo.setPassengerState(p.getPassengerId(), States.IN_QUEUE, true);
+		
 		passengersQueue.add(p.getPassengerId());
 		System.out.printf("queue size ---> %d...\n", passengersQueue.size());
 		notifyAll();
@@ -78,6 +83,8 @@ public class DepartureAirport {
 	public synchronized void showDocuments() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
+		repo.setPassengerState(p.getPassengerId(), States.IN_QUEUE, true);
+		
 		handedDocs[p.getPassengerId()] = true;
 		notifyAll();
 		while(!canBoardPlane[p.getPassengerId()]) {
@@ -95,6 +102,9 @@ public class DepartureAirport {
 	public synchronized boolean parkAtTransferGate() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.AT_TRANSFER_GATE);
+		repo.setPilotState(States.AT_TRANSFER_GATE);
+		
+		
 		if(AirLift.N_PASSENGERS - numberPassengersTransported > AirLift.FLIGHT_MIN_P) {
 			lastFlight = false;
 			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = FALSE).\n");
@@ -112,7 +122,9 @@ public class DepartureAirport {
 	// pilot
 	public synchronized void informPlaneReadyForBoarding() {
 		Pilot pilot = (Pilot) Thread.currentThread();
-		pilot.setState(States.READY_FOR_BOARDING);	
+		pilot.setState(States.READY_FOR_BOARDING);
+		repo.setPilotState(States.READY_FOR_BOARDING);
+		
 		System.out.printf("[PILOT]: Inform plane ready for boarding.\n");
 		planeReady = true;
 		notifyAll();
@@ -125,6 +137,8 @@ public class DepartureAirport {
 	public synchronized void flyToDestinationPoint() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.FLYING_FORWARD);
+		repo.setPilotState(States.FLYING_FORWARD);
+		
 		System.out.printf("[PILOT]: Flying forward...\n");
 		try {
 			Thread.sleep((long) (new Random().nextInt(15)));
@@ -137,6 +151,8 @@ public class DepartureAirport {
 	public synchronized boolean waitForNextFlight() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_NEXT_FLIGHT);
+		repo.setHostessState(States.WAIT_FOR_NEXT_FLIGHT);
+		
 		System.out.printf("[HOSTESS]: Waiting for next flight...\n");
 		while(!planeReady) {
 			try {
@@ -155,6 +171,8 @@ public class DepartureAirport {
 	public synchronized void prepareForPassBoarding() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
+		repo.setHostessState(States.WAIT_FOR_PASSENGER);
+		
 		System.out.printf("[HOSTESS]: Prepare for pass boarding...\n");
 		
 		// reset variables
@@ -184,6 +202,7 @@ public class DepartureAirport {
 	public synchronized int checkDocuments() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.CHECK_PASSENGER);
+		repo.setHostessState(States.CHECK_PASSENGER);
 		
 		askDocument_id = passengersQueue.remove(); // get the passenger at the head of the queue
 		
@@ -208,6 +227,9 @@ public class DepartureAirport {
 	public synchronized boolean waitForNextPassenger(int currentPassengers, boolean lastF) {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
+		repo.setHostessState(States.WAIT_FOR_PASSENGER);
+		
+		
 		System.out.printf("[HOSTESS]: Waiting for next passenger...\n");
 
 		//canBoard = checkDocument_id; // authorize the last passengers that showed his documents
