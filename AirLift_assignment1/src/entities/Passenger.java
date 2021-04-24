@@ -9,9 +9,31 @@ public class Passenger extends Thread {
 	 */
 	private States state;
 	
+	
+	/**
+	 * Passenger's identification
+	 * @serialField id
+	 */
 	private int id;
+	
+	
+	/**
+	 * DepartureAirport 
+	 * @serialField departure
+	 */
+	
 	private DepartureAirport departure;
+	
+	/**
+	 * DestinationAirport 
+	 * @serialField destination
+	 */
 	private DestinationAirport destination;
+	
+	/**
+	 * Plane 
+	 * @serialField plane
+	 */
 	private Plane plane;
 	
 	public Passenger(int id, DepartureAirport dep, DestinationAirport dest, Plane p) {
@@ -22,14 +44,17 @@ public class Passenger extends Thread {
 		this.plane = p;
 	}
 	
-	public void setState(States s) {
-		this.state = s;
-	}
-	
+	/**
+	 * Returns this passenger's id.
+	 * @return passenger's id
+	 */
 	public int getPassengerId() {
 		return this.id;
 	}
 	
+	/**
+	 * Passenger's lifecycle
+	 */
 	@Override
 	public void run() {
 		departure.travelToAirport();
@@ -50,4 +75,20 @@ public class Passenger extends Thread {
 		}
 	}
 	*/
+	
+	/**
+     * Returns this passenger's state.
+     * @return passenger's current state
+     */
+	public States getPassengerState() {
+		return state;
+	}
+	
+	/**
+     * Sets the passenger's state.
+	 * @param s the state to be set
+     */
+	public void setState(States s) {
+		this.state = s;
+	}
 }
