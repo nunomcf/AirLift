@@ -4,29 +4,75 @@ import java.util.*;
 import entities.*;
 import main.AirLift;
 
+/**
+ *    Departure Airport.
+ *
+ *    It is responsible to keep a continuously updated account of the passengers inside the departure airport
+ *    and is implemented as an implicit monitor.
+ *    All public methods are executed in mutual exclusion.
+ */
 public class DepartureAirport {
-	
+	/**
+	 * Repository 
+	 * @serialField repo
+	 */
 	private Repository repo;
 	
+	/**
+	 * Queue where where passengers arrive at random times to check in for the transfer flight
+	 * 
+	 * @serialField passengersQueue
+	 */
 	private Queue<Integer> passengersQueue;
+
+	/**
+	 * Boolean array where the Hostess to ask the documents of the passengers.
+	 * @serialField documents
+	 */
 	private boolean[] documents;
+
+	/**
+	 * Boolean array where the Passengers show that they have handed their documents to the Hostess.
+	 * @serialField handedDocs
+	 */
 	private boolean[] handedDocs;
+
+	/**
+	 * Boolean array where the Hostess gives permission to the passengers to board the plane.
+	 * @serialField canBoardPlane
+	 */
 	private boolean[] canBoardPlane;
 	
-	// variable to store the number of passengers transported
-	private int numberPassengersTransported = 0;
-	
+	/**
+	 * Variable to store the number of passengers that have already showed the documents to the Hostess. 
+	 * It is reseted before the hostess starts the boarding procedure.
+	 * @serialField currentFlightPassengers
+	 */
 	private int currentFlightPassengers = 0;
-	// variable to terminate hostess life cycle (set by the pilot after returning from the last flight)
+	
+	/**
+	 * Last Flight flag, that is set to true when the next flight is the last one.
+	 * @serialField lastFlight
+	 */
 	private boolean lastFlight = false;
 	
+	/**
+	 * Plane Ready for Boarding flag, that is used to signal when the plane is ready for boarding.
+	 * @serialField planeReady
+	 */
 	private boolean planeReady = false;
 	
+	/**
+	 * Temporary variable used to store the id of the passenger that is currently showing his documents to the Hostess.
+	 * @serialField askDocument_id
+	 */
 	private int askDocument_id = -1;
-	private int checkDocument_id = -1;
-	private int canBoard = -1;
 	
-	
+	/**
+     * DepartureAirport instantiation
+     * 
+     * @param repo Repository
+     */
 	public DepartureAirport(Repository repo) {
 		this.repo = repo;
 		passengersQueue = new LinkedList<>();
@@ -38,20 +84,16 @@ public class DepartureAirport {
 		Arrays.fill(handedDocs, false);
 	}
 	
-	public int getPassengersTransported() {
-		return this.numberPassengersTransported;
-	}
-	
-	public boolean getLastFlight() {
-		return this.lastFlight;
-	}
-	
-	// passenger
+	/**
+	   *  Operation travel to Airport.
+	   *
+	   *  It is called by the Passengers when they travel to the airport in the beginning of the simulation.
+	   *  
+	   */
 	public synchronized void travelToAirport() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.GOING_TO_AIRPORT);
 		repo.setPassengerState(p.getPassengerId(), States.GOING_TO_AIRPORT, true);
-		
 		
 		System.out.printf("[PASSENGER %d]: Going to airport...\n", p.getPassengerId());
 		try {
@@ -61,7 +103,12 @@ public class DepartureAirport {
 		}
 	}
 	
-	// passenger
+	/**
+	   *  Operation wait in queue.
+	   *
+	   *  It is called by the Passengers to go to the queue waiting for boarding in the plane.
+	   *  
+	   */
 	public synchronized void waitInQueue() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
@@ -69,7 +116,6 @@ public class DepartureAirport {
 		
 		passengersQueue.add(p.getPassengerId());
 		repo.inQueue();
-		System.out.printf("queue size ---> %d...\n", passengersQueue.size());
 		notifyAll();
 		System.out.printf("[PASSENGER %d]: Waiting in queue...\n", p.getPassengerId());
 		while(!documents[p.getPassengerId()]) {
@@ -77,10 +123,14 @@ public class DepartureAirport {
 				wait();
 			} catch (InterruptedException e) {}
 		}
-		
 	}
 	
-	// passenger
+	/**
+	   *  Operation show documents.
+	   *
+	   *  It is called by the Passengers to show the documents to the hostess check them.
+	   *  
+	   */
 	public synchronized void showDocuments() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
@@ -96,31 +146,39 @@ public class DepartureAirport {
 			}
 		}
 		System.out.printf("[PASSENGER %d]: Showed his documents.\n", p.getPassengerId());
-		numberPassengersTransported++;
 	}
 	
-	// pilot
+	/**
+	   *  Operation park at transfer gate.
+	   *
+	   *  It is called by the Pilot when he park the plane at the transfer gate.
+	   *
+	   *  @return true, if is the last flight of the simulation -
+	   *          false, otherwise
+	   */
 	public synchronized boolean parkAtTransferGate() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.AT_TRANSFER_GATE);
 		repo.setPilotState(States.AT_TRANSFER_GATE);
 		
-		
-		if(AirLift.N_PASSENGERS - numberPassengersTransported > AirLift.FLIGHT_MIN_P) {
-			lastFlight = false;
-			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = FALSE).\n");
-			//notifyAll();
-			return false;
+		if(AirLift.N_PASSENGERS - repo.getTotalNumberPassengersTransported() <= AirLift.FLIGHT_MAX_P) {
+			lastFlight = true;
+			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = TRUE).\n");
 		}
 		else{
-			lastFlight = true;
-			//notifyAll();
-			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = TRUE).\n");
-			return true;
+			lastFlight = false;
+			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = FALSE).\n");
+			
 		}
+		return lastFlight;
 	}
 	
-	// pilot
+	/**
+	   *  Operation inform plane ready for boarding.
+	   *
+	   *  It is called by the Pilot to signal that the plane is ready for boarding.
+	   *  
+	   */
 	public synchronized void informPlaneReadyForBoarding() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.READY_FOR_BOARDING);
@@ -131,10 +189,12 @@ public class DepartureAirport {
 		notifyAll();
 	}
 	
-	
-	
-	
-	// pilot
+	/**
+	   *  Operation fly to the destination point.
+	   *
+	   *  It is called by the Pilot when the plane is flying to the destination airport.
+	   *  
+	   */
 	public synchronized void flyToDestinationPoint() {
 		Pilot pilot = (Pilot) Thread.currentThread();
 		pilot.setState(States.FLYING_FORWARD);
@@ -148,7 +208,14 @@ public class DepartureAirport {
 		}
 	}
 	
-	// hostess - check again not sure
+	/**
+	 *  Operation wait for next flight.
+	 *
+	 *  It is called by the Hostess when she is waiting for the next flight.
+	 *
+	 *  @return true, if is the last flight of the simulation -
+	 *          false, otherwise
+	 */
 	public synchronized boolean waitForNextFlight() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_NEXT_FLIGHT);
@@ -163,30 +230,23 @@ public class DepartureAirport {
 			}
 		}
 		planeReady = false;
-		if(lastFlight) return true;
-		else return false;
+		return lastFlight;
 	}
 	
-	
-	// hostess
+	/**
+	   *  Operation prepare for pass boarding.
+	   *
+	   *  It is called by the Hostess when she is ready to receive passengers from the queue in the plane.
+	   *  
+	   */
 	public synchronized void prepareForPassBoarding() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
 		repo.setHostessState(States.WAIT_FOR_PASSENGER);
 		
 		System.out.printf("[HOSTESS]: Prepare for pass boarding...\n");
-		
-		// reset variables
 		currentFlightPassengers = 0; 
 		askDocument_id = -1;
-		checkDocument_id = -1;
-		canBoard = -1;
-		
-		System.out.print("QUEUE: ");
-		for (int element : passengersQueue) {
-			  System.out.printf("%d  ", element);
-			}
-		System.out.println();
 		
 		while(passengersQueue.size() == 0) { // waits for the first passenger
 			try {
@@ -195,11 +255,15 @@ public class DepartureAirport {
 				e.printStackTrace();
 			}
 		}
-
 	}
 	
-	
-	// hostess
+	/**
+	 *  Operation check documents.
+	 *
+	 *  It is called by the Hostess when she checks the documents of the passengers that showed the documents previously.
+	 *
+	 *  @return currentFlightPassengers in the plane
+	 */
 	public synchronized int checkDocuments() {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.CHECK_PASSENGER);
@@ -224,23 +288,25 @@ public class DepartureAirport {
 		return currentFlightPassengers;
 	}
 	
-	
-	// hostess
-	public synchronized boolean waitForNextPassenger(int currentPassengers, boolean lastF) {
+	/**
+	 *  Operation wait for next passenger.
+	 *
+	 * It is called by the Hostess to calling the next passenger to enter in the plane.
+	 *	  @param  currentPassengers number of passengers that are already in the plane.
+	 *	  @param  lastF last Flight Flag
+	 *    @return true, if is the last passenger -
+	 *            false, otherwise
+	 */
+	public synchronized boolean waitForNextPassenger(int currentPassengers,boolean lastF) {
 		Hostess h = (Hostess) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
 		repo.setHostessState(States.WAIT_FOR_PASSENGER);
 		
-		
 		System.out.printf("[HOSTESS]: Waiting for next passenger...\n");
-
-		//canBoard = checkDocument_id; // authorize the last passengers that showed his documents
 		canBoardPlane[askDocument_id] = true;
 		askDocument_id = -1;
-		checkDocument_id = -1;
 		notifyAll();
-		
-		int numberPassengersLeft = AirLift.N_PASSENGERS - numberPassengersTransported;
+		int numberPassengersLeft = AirLift.N_PASSENGERS - repo.getTotalNumberPassengersTransported();
 		
 		if(lastF) {
 			if(currentPassengers == numberPassengersLeft) {
@@ -285,6 +351,4 @@ public class DepartureAirport {
 			}
 		}
 	}
-	
-	
 }

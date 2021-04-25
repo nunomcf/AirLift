@@ -1,8 +1,12 @@
 package entities;
 import sharedRegions.*;
-import main.*;
 
-
+/**
+ *   Pilot thread.
+ *
+ *   It simulates the pilot life cycle.
+ *   Dynamic solution.
+ */
 public class Pilot extends Thread {
 	/**
 	 * Pilot's state
@@ -62,12 +66,10 @@ public class Pilot extends Thread {
 			plane.announceArrival();
 			destination.flyToDeparturePoint();
 			if(lastFlight) {
-				System.out.println("last flight break");
 				break;
 			}
 		}
 	}
-	
 	
 	/**
      * Returns this pilot's state.

@@ -1,6 +1,12 @@
 package entities;
 import sharedRegions.*;
-import java.util.*;
+
+/**
+ *   Passenger thread.
+ *
+ *   It simulates the passenger life cycle.
+ *   Dynamic solution.
+ */
 
 public class Passenger extends Thread {
 	/**
@@ -25,22 +31,23 @@ public class Passenger extends Thread {
 	private DepartureAirport departure;
 	
 	/**
-	 * DestinationAirport 
-	 * @serialField destination
-	 */
-	private DestinationAirport destination;
-	
-	/**
 	 * Plane 
 	 * @serialField plane
 	 */
 	private Plane plane;
 	
-	public Passenger(int id, DepartureAirport dep, DestinationAirport dest, Plane p) {
+	
+	/**
+     * Passenger instantiation
+     * 
+     * @param id int
+     * @param dep DepartureAirport
+     * @param p Plane
+     */
+	public Passenger(int id, DepartureAirport dep, Plane p) {
 		this.state = States.GOING_TO_AIRPORT;
 		this.id = id;
 		this.departure = dep;
-		this.destination = dest;
 		this.plane = p;
 	}
 	
@@ -64,17 +71,6 @@ public class Passenger extends Thread {
 		plane.waitForEndOfFlight();
 		plane.leaveThePlane();
 	}
-	
-	/*
-	public void travelToAirport() {
-		this.state = States.GOING_TO_AIRPORT;
-		try {
-			sleep((long) (new Random().nextInt(5)));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	*/
 	
 	/**
      * Returns this passenger's state.

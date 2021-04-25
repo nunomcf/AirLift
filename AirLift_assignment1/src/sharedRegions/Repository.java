@@ -1,11 +1,8 @@
 package sharedRegions;
-
 import java.io.File;
 import java.io.PrintWriter;
-
 import entities.States;
 import main.AirLift;
-
 import java.io.FileNotFoundException;
 
 /**
@@ -29,9 +26,7 @@ public class Repository {
     // Passenger
     private States[] passengersState;
     
-    
     //DepartureAirport
-    
     private int queueCount; 
     
     //Plane
@@ -117,82 +112,82 @@ public class Repository {
     }
     
     /**
+    * Get the Total Number of Passengers Transported
+    * @return Total Number of Passengers Transported
+    */
+    public synchronized int getTotalNumberPassengersTransported() {
+        return totalNumberPassengersTransported;
+    }
+
+   /**
+    * Get the Total Number of Passengers in Queue
+    * @return Total Number of Passengers in Queue
+    */
+    public synchronized int getQueueCount() {
+        return queueCount;
+    }
+    
+    /**
     *
     * @param pilotState state of the pilot
     */
-   public synchronized void setPilotState(States pilotState) {
-       if (this.pilotState != pilotState) {
-           this.pilotState = pilotState;
-           export();
-       }
-   }
+    public synchronized void setPilotState(States pilotState) {
+        if (this.pilotState != pilotState) {
+            this.pilotState = pilotState;
+            export();
+        }
+    }
    
-   /**
-   *
-   * @param hostessState state of the hostess
-   */
-  public synchronized void setHostessState(States hostessState) {
-      if (this.hostessState != hostessState) {
-          this.hostessState = hostessState;
-          export();
-      }
-  }
+    /**
+    *
+    * @param hostessState state of the hostess
+    */
+    public synchronized void setHostessState(States hostessState) {
+        if (this.hostessState != hostessState) {
+            this.hostessState = hostessState;
+            export();
+        }
+    }
 
-   /**
+    /**
     *
     * @param id if of the passenger
     * @param passengerState state of the passenger
+    * @param export if we want to print the state change in file
     */
-   public synchronized void setPassengerState(int id, States passengerState, boolean export) {
-       if (passengersState[id] != passengerState) {
-    	   passengersState[id] = passengerState;
-           if (export)
-               export();
-       }
-   }
+    public synchronized void setPassengerState(int id, States passengerState, boolean export) {
+        if (passengersState[id] != passengerState) {
+    	    passengersState[id] = passengerState;
+            if (export)
+                export();
+        }
+    }
    
-   /**
+    /**
     * Prints the internal state and also saves it to a file.
     */
-   private void export() {
-       String output = getInternalState();
-       //System.out.println(output);
-       pw.write(output);
-       pw.flush();
-   }
+    private void export() {
+        String output = getInternalState();
+        pw.write(output);
+        pw.flush();
+    }
    
-   /**
+    /**
     * Builds the string that represents the internal state.
     * @return internal state of the problem as a string
     */
-   private String getInternalState() {
-       String str = stateAbrv[pilotState.ordinal()] + "  ";
-       str += String.format("%s ", stateAbrv[hostessState.ordinal()]);
-       
+    private String getInternalState() {
+        String str = stateAbrv[pilotState.ordinal()] + "  ";
+        str += String.format("%s ", stateAbrv[hostessState.ordinal()]);
 
-       for (int i = 0; i < AirLift.N_PASSENGERS; i++) {
-           str += String.format(" %s ", stateAbrv[passengersState[i].ordinal()]);
+        for (int i = 0; i < AirLift.N_PASSENGERS; i++) {
+            str += String.format(" %s ", stateAbrv[passengersState[i].ordinal()]);
 
-           if ((i+1) % AirLift.N_PASSENGERS == 0) {
-        	   str += String.format(" %02d    %02d    %02d", queueCount,passengersPlane,totalNumberPassengersTransported);
-               str += "\n              ";
-           }
-       }
-
-       
-/*       str += String.format("                  %02d  %02d", customerCars, replacementCars);
-       str += String.format("          %02d ", reqCount);
-
-       for (int i = 0; i < RepairShop.K; i++) {
-           str += String.format("  %02d  %02d  %s ", stock[i], pendingVehicles[i], booleanToStr(managerAlerted[i]));
-       }
-
-       str += "               ";
-       
-       for (int i = 0; i < RepairShop.K; i++) {
-           str += String.format("  %02d", soldParts[i]);
-       }*/
-
-       return str + "\n\n";
-   }
+            if ((i+1) % AirLift.N_PASSENGERS == 0) {
+        	    str += String.format(" %02d    %02d    %02d", queueCount,passengersPlane,totalNumberPassengersTransported);
+                str += "\n              ";
+            }
+        }
+        return str + "\n\n";
+    }
 }
