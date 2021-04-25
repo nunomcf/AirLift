@@ -68,6 +68,7 @@ public class DepartureAirport {
 		repo.setPassengerState(p.getPassengerId(), States.IN_QUEUE, true);
 		
 		passengersQueue.add(p.getPassengerId());
+		repo.inQueue();
 		System.out.printf("queue size ---> %d...\n", passengersQueue.size());
 		notifyAll();
 		System.out.printf("[PASSENGER %d]: Waiting in queue...\n", p.getPassengerId());
@@ -83,7 +84,7 @@ public class DepartureAirport {
 	public synchronized void showDocuments() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
-		repo.setPassengerState(p.getPassengerId(), States.IN_QUEUE, true);
+		repo.setPassengerState(p.getPassengerId(), States.IN_QUEUE, false);
 		
 		handedDocs[p.getPassengerId()] = true;
 		notifyAll();
@@ -205,6 +206,7 @@ public class DepartureAirport {
 		repo.setHostessState(States.CHECK_PASSENGER);
 		
 		askDocument_id = passengersQueue.remove(); // get the passenger at the head of the queue
+		repo.outQueue();
 		
 		System.out.printf("[HOSTESS]: Ask documents of passenger %d...\n", askDocument_id);
 		documents[askDocument_id] = true;

@@ -29,6 +29,15 @@ public class Repository {
     // Passenger
     private States[] passengersState;
     
+    
+    //DepartureAirport
+    
+    private int queueCount; 
+    
+    //Plane
+    private int passengersPlane;
+    private int totalNumberPassengersTransported;
+    
     /**
      * Repository instantiation.
      * @throws FileNotFoundException when there's no file
@@ -46,6 +55,10 @@ public class Repository {
         passengersState = new States[AirLift.N_PASSENGERS];
         for (int i = 0; i < AirLift.N_PASSENGERS; i++)
         	passengersState[i] = States.GOING_TO_AIRPORT;
+        
+        queueCount = 0;
+        passengersPlane=0;
+        totalNumberPassengersTransported=0;
     }
     
     /**
@@ -53,6 +66,54 @@ public class Repository {
      */
     public void closeWriter() {
         //pw.close();
+    }
+    
+    /**
+     * Increment QueueCount.
+     */
+    public synchronized void inQueue() {
+        queueCount++;
+        export();
+    }
+
+    /**
+     * Decrement QueueCount.
+     */
+    public synchronized void outQueue() {
+    	queueCount--;
+        export();
+    }
+    
+    /**
+     * Increment passengersPlane.
+     */
+    public synchronized void incPassengersPlane() {
+    	passengersPlane++;
+        export();
+    }
+
+    /**
+     * Decrement passengersPlane.
+     */
+    public synchronized void decPassengersPlane() {
+    	passengersPlane--;
+        export();
+    }
+    
+    /**
+     * Increment totalNumberPassengersTransported.
+     */
+    public synchronized void incTotalNumberPassengersTransported() {
+    	totalNumberPassengersTransported++;
+        export();
+    }
+
+    /**
+     * Decrement totalNumberPassengersTransported.
+     */
+    public synchronized void decTotalNumberPassengersTransported() {
+    	totalNumberPassengersTransported--;
+        export();
     }
     
     /**
@@ -112,12 +173,14 @@ public class Repository {
        for (int i = 0; i < AirLift.N_PASSENGERS; i++) {
            str += String.format(" %s ", stateAbrv[passengersState[i].ordinal()]);
 
-           if ((i+1) % AirLift.N_PASSENGERS == 0)
+           if ((i+1) % AirLift.N_PASSENGERS == 0) {
+        	   str += String.format(" %02d    %02d    %02d", queueCount,passengersPlane,totalNumberPassengersTransported);
                str += "\n              ";
+           }
        }
-/*
-       str += String.format("  %02d %02d %02d", customerQueue, waitingForKey, finishedJobs);
-       str += String.format("                  %02d  %02d", customerCars, replacementCars);
+
+       
+/*       str += String.format("                  %02d  %02d", customerCars, replacementCars);
        str += String.format("          %02d ", reqCount);
 
        for (int i = 0; i < RepairShop.K; i++) {
@@ -131,11 +194,5 @@ public class Repository {
        }*/
 
        return str + "\n\n";
-   }
-
-   private String booleanToStr(boolean b) {
-       if (b)
-           return "T";
-       return "F";
    }
 }

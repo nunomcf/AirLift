@@ -32,6 +32,7 @@ public class Plane {
 		flight_finished = false;
 		passengersSeated.add(p.getPassengerId());
 		n_passengersBoarded++;
+		repo.incPassengersPlane();
 		notifyAll();
 		System.out.printf("[PASSENGER %d]: Boarding the plane...\n", p.getPassengerId());
 	}
@@ -40,7 +41,7 @@ public class Plane {
 	public synchronized void waitForEndOfFlight() {
 		Passenger p = (Passenger) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
-		repo.setPassengerState(p.getPassengerId(), States.IN_FLIGHT, true);
+		repo.setPassengerState(p.getPassengerId(), States.IN_FLIGHT, false);
 		
 		System.out.printf("[PASSENGER %d]: Waiting for end of flight...\n", p.getPassengerId());
 		while(!flight_finished) {
@@ -56,6 +57,10 @@ public class Plane {
 		p.setState(States.AT_DESTINATION);
 		repo.setPassengerState(p.getPassengerId(), States.AT_DESTINATION, true);
 		passengersSeated.remove(p.getPassengerId());
+		
+		repo.decPassengersPlane();
+		repo.incTotalNumberPassengersTransported();
+		
 		if(passengersSeated.size() == 0) {
 			allPassengersLeft = true;
 			notifyAll();
