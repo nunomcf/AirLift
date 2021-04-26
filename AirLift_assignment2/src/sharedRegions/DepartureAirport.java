@@ -1,8 +1,10 @@
 package sharedRegions;
 
 import java.util.*;
+
+import common.Parameters;
+import common.States;
 import entities.*;
-import main.AirLift;
 
 /**
  *    Departure Airport.
@@ -76,9 +78,9 @@ public class DepartureAirport implements SharedRegion {
 	public DepartureAirport(Repository repo) {
 		this.repo = repo;
 		passengersQueue = new LinkedList<>();
-		documents = new boolean[AirLift.N_PASSENGERS];
-		canBoardPlane = new boolean[AirLift.N_PASSENGERS];
-		handedDocs = new boolean[AirLift.N_PASSENGERS];
+		documents = new boolean[Parameters.N_PASSENGERS];
+		canBoardPlane = new boolean[Parameters.N_PASSENGERS];
+		handedDocs = new boolean[Parameters.N_PASSENGERS];
 		Arrays.fill(documents, false);
 		Arrays.fill(canBoardPlane, false);
 		Arrays.fill(handedDocs, false);
@@ -161,7 +163,7 @@ public class DepartureAirport implements SharedRegion {
 		pilot.setState(States.AT_TRANSFER_GATE);
 		repo.setPilotState(States.AT_TRANSFER_GATE);
 		
-		if(AirLift.N_PASSENGERS - repo.getTotalNumberPassengersTransported() <= AirLift.FLIGHT_MAX_P) {
+		if(Parameters.N_PASSENGERS - repo.getTotalNumberPassengersTransported() <= Parameters.FLIGHT_MAX_P) {
 			lastFlight = true;
 			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = TRUE).\n");
 		}
@@ -306,7 +308,7 @@ public class DepartureAirport implements SharedRegion {
 		canBoardPlane[askDocument_id] = true;
 		askDocument_id = -1;
 		notifyAll();
-		int numberPassengersLeft = AirLift.N_PASSENGERS - repo.getTotalNumberPassengersTransported();
+		int numberPassengersLeft = Parameters.N_PASSENGERS - repo.getTotalNumberPassengersTransported();
 		
 		if(lastF) {
 			if(currentPassengers == numberPassengersLeft) {
@@ -328,12 +330,12 @@ public class DepartureAirport implements SharedRegion {
 			}
 		} 
 		else {
-			if(currentPassengers >= AirLift.FLIGHT_MIN_P) {
+			if(currentPassengers >= Parameters.FLIGHT_MIN_P) {
 				if(passengersQueue.size() == 0) {
 					return true;
 				} 
 				else {
-					if(currentPassengers == AirLift.FLIGHT_MAX_P) {
+					if(currentPassengers == Parameters.FLIGHT_MAX_P) {
 						return true;
 					}
 					return false;

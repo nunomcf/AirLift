@@ -1,5 +1,6 @@
 package entities;
-import main.AirLift;
+import common.Parameters;
+import common.States;
 import sharedRegions.*;
 
 /**
@@ -56,10 +57,10 @@ public class Hostess extends Thread {
 		boolean canTakeOff = false;
 		while(true) {
 			currentNumberPassengers = 0;
-			if(totalNumberPassengersTransported == AirLift.N_PASSENGERS) break; // no more passengers to transport, end simulation
+			if(totalNumberPassengersTransported == Parameters.N_PASSENGERS) break; // no more passengers to transport, end simulation
 			lastFlight = departure.waitForNextFlight();
 			departure.prepareForPassBoarding();	
-			while(currentNumberPassengers < AirLift.FLIGHT_MAX_P) {
+			while(currentNumberPassengers < Parameters.FLIGHT_MAX_P) {
 				currentNumberPassengers = departure.checkDocuments();
 				canTakeOff = departure.waitForNextPassenger(currentNumberPassengers,lastFlight);
 				if(canTakeOff) {

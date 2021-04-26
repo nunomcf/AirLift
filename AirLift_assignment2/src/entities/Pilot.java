@@ -1,4 +1,5 @@
 package entities;
+import common.States;
 import sharedRegions.*;
 
 /**

@@ -1,5 +1,21 @@
 package common;
 
-public class States {
-
+/**
+ * State of active entities.
+ */
+public enum States {
+	AT_TRANSFER_GATE,// ATRG 
+	READY_FOR_BOARDING,// RDFB 
+	WAITING_FOR_BOARDING,// WTFB 
+	FLYING_FORWARD, // FLFW 
+	DEBOARDING, // DRPP 
+	FLYING_BACK,// FLBK 
+	WAIT_FOR_NEXT_FLIGHT,// WTFL 
+	WAIT_FOR_PASSENGER,// WTPS 
+	CHECK_PASSENGER,// CKPS 
+	READY_TO_FLY, // RDTF 
+	GOING_TO_AIRPORT,// GTAP 
+	IN_QUEUE, // INQE 
+	IN_FLIGHT, // INFL 
+	AT_DESTINATION // ATDS 
 }

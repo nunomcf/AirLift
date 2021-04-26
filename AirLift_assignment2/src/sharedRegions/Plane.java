@@ -1,10 +1,11 @@
 package sharedRegions;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import common.States;
 import entities.Hostess;
 import entities.Passenger;
 import entities.Pilot;
-import entities.States;
 
 /**
  *    Plane.

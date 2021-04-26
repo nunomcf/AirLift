@@ -1,8 +1,10 @@
 package sharedRegions;
 import java.io.File;
 import java.io.PrintWriter;
-import entities.States;
-import main.AirLift;
+
+import common.Parameters;
+import common.States;
+
 import java.io.FileNotFoundException;
 
 /**
@@ -38,7 +40,7 @@ public class Repository implements SharedRegion{
      * @throws FileNotFoundException when there's no file
      */
     public Repository() throws FileNotFoundException {
-    	f = new File(AirLift.filename);
+    	f = new File(Parameters.filename);
         pw = new PrintWriter(f);
         pw.write("Airlift - Description of the internal state\n");
         pw.write("PT    HT	    P00	 P01   P02   P03   P04   P05   P06   P07   P08   P09   P10   P11   P12   P13   P14   P15   P16   P17   P18   P19   P20   InQ   InF   PTAL\n");
@@ -47,8 +49,8 @@ public class Repository implements SharedRegion{
         pilotState = States.AT_TRANSFER_GATE;
         hostessState = States.WAIT_FOR_NEXT_FLIGHT;
 
-        passengersState = new States[AirLift.N_PASSENGERS];
-        for (int i = 0; i < AirLift.N_PASSENGERS; i++)
+        passengersState = new States[Parameters.N_PASSENGERS];
+        for (int i = 0; i < Parameters.N_PASSENGERS; i++)
         	passengersState[i] = States.GOING_TO_AIRPORT;
         
         queueCount = 0;
@@ -180,10 +182,10 @@ public class Repository implements SharedRegion{
         String str = stateAbrv[pilotState.ordinal()] + "  ";
         str += String.format("%s ", stateAbrv[hostessState.ordinal()]);
 
-        for (int i = 0; i < AirLift.N_PASSENGERS; i++) {
+        for (int i = 0; i < Parameters.N_PASSENGERS; i++) {
             str += String.format(" %s ", stateAbrv[passengersState[i].ordinal()]);
 
-            if ((i+1) % AirLift.N_PASSENGERS == 0) {
+            if ((i+1) % Parameters.N_PASSENGERS == 0) {
         	    str += String.format(" %02d    %02d    %02d", queueCount,passengersPlane,totalNumberPassengersTransported);
                 str += "\n              ";
             }

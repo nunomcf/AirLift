@@ -1,7 +1,8 @@
 package sharedRegions;
 import java.util.Random;
+
+import common.States;
 import entities.Pilot;
-import entities.States;
 
 /**
  *    Destination Airport.
