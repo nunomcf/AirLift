@@ -9,7 +9,7 @@ import entities.States;
  *    Implemented as an implicit monitor.
  *    All public methods are executed in mutual exclusion.
  */
-public class DestinationAirport {
+public class DestinationAirport implements SharedRegion {
 	/**
 	 * Repository 
 	 * @serialField repo

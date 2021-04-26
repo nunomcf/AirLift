@@ -12,7 +12,7 @@ import entities.States;
  *    It is responsible to keep a continuously updated account of the passengers inside the plane and is implemented as an implicit monitor.
  *    All public methods are executed in mutual exclusion.
  */
-public class Plane {
+public class Plane implements SharedRegion{
 	/**
 	 * Repository 
 	 * @serialField repo

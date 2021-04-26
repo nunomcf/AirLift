@@ -11,7 +11,7 @@ import main.AirLift;
  *    and is implemented as an implicit monitor.
  *    All public methods are executed in mutual exclusion.
  */
-public class DepartureAirport {
+public class DepartureAirport implements SharedRegion {
 	/**
 	 * Repository 
 	 * @serialField repo

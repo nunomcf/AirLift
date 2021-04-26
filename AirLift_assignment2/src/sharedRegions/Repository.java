@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
  * This datatype implements the general repository of information shared region.
  * The internal state of the simulation is kept here and the logging is handled.
  */
-public class Repository {
+public class Repository implements SharedRegion{
 	// State abreviations
     private final String[] stateAbrv = { "ATRG", "RDFB", "WTFB", "FLFW", "DRPP", "FLBK", "WTFL", "WTPS", "CKPS", "RDTF", "GTAP",
             "INQE", "INFL", "ATDS"};
