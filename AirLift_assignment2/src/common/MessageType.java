@@ -1,5 +1,8 @@
 package common;
 
-public class MessageType {
+/**
+* Message Types
+*/
+public enum MessageType {
 
 }
