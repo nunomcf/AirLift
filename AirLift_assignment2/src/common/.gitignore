@@ -2,3 +2,8 @@
 /Parameters.class
 /ServerComm.class
 /ClientComm.class
+/PilotInterface.class
+/PassengerInterface.class
+/HostessInterface.class
+/Message.class
+/MessageType.class
