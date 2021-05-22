@@ -37,7 +37,7 @@ public class Parameters {
    * Departure Airport port
 	* @serial departureAirportPort
    */
-	public static final int departureAirportPort = 22120;
+	public static final int departureAirportPort = 22340;
 
 	/**
    * Plane hostname
@@ -49,7 +49,7 @@ public class Parameters {
    * Plane port
 	* @serial planePort
    */
-	public static final int planePort = 22120;
+	public static final int planePort = 22340;
 
 	/**
    * Repository hostname
@@ -61,7 +61,7 @@ public class Parameters {
    * Repository port
 	* @serial repositoryPort
    */	
-	public static final int repositoryPort = 22120;
+	public static final int repositoryPort = 22340;
 	
 	/**
    * Destination Airport hostname
@@ -73,6 +73,6 @@ public class Parameters {
    * Destination Airport port
 	* @serial destinationAirportPort
    */
-	public static final int destinationAirportPort = 22120;
+	public static final int destinationAirportPort = 22340;
 }
 

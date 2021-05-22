@@ -15,13 +15,15 @@ tmpf=$(mktemp -d)
 
 cd $(dirname $0)/../src
 
-cp --parents $(find -name \*.class | grep assignment3) $tmpf 
+ls
+
+cp --parents $(find -name \*.class) $tmpf 
 
 for i in $(seq -w 1 10); do
     echo Machine $i
-    scp -r $tmpf/* sd0305@l040101-ws$i".ua.pt:~"
-    scp -r ../scripts sd0305@l040101-ws$i".ua.pt:~"
-    scp -r ../mapping ../java.policy sd0305@l040101-ws$i".ua.pt:~"
+    scp -r $tmpf/* sd305@l040101-ws$i".ua.pt:~"
+    scp -r ../scripts sd305@l040101-ws$i".ua.pt:~"
+    scp -r ../mapping ../java.policy sd305@l040101-ws$i".ua.pt:~"
 done
 
 rm -r $tmpf
@@ -31,7 +33,7 @@ rm -r $tmpf
 mappingf=$(dirname $0)/../mapping
 publicc=$(grep Public $mappingf | sed s/\s*Public\s*//g)
 
-ssh -l sd0103 $publicc "mkdir -p Public/classes/sd/p1g3/assignment3/interfaces &&
+ssh -l sd305 $publicc "mkdir -p Public/classes/sd/p1g3/assignment3/interfaces &&
 					 mkdir -p Public/classes/sd/p1g3/assignment3/common &&
 					 cp -r sd/p1g3/assignment3/interfaces/. Public/classes/sd/p1g3/assignment3/interfaces &&
 					 cp -r sd/p1g3/assignment3/common/. Public/classes/sd/p1g3/assignment3/common"
