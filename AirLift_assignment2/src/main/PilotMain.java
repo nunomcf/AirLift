@@ -18,6 +18,7 @@ public class PilotMain {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.out.printf("%s: Bye!\n");
 	}
 
 }

@@ -51,18 +51,15 @@ public class PlaneProxy implements SharedRegionProxy {
 			plane.leaveThePlane();
 			nm.setEntityState(sp.getPassengerState());
 			break;
-		case INFORMPLANEREADYTOTAKEOFF:
-			sp.setID(msg.getEntityId());
-			plane.informPlaneReadyToTakeOff(1); // ?????????????
+		case INFORMPLANEREADYTOTAKEOFF:			
+			plane.informPlaneReadyToTakeOff(msg.getIntVal1());
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case WAITFORALLINBOARD:
-			sp.setID(msg.getEntityId());
 			plane.waitForAllInBoard();
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case ANNOUNCEARRIVAL:
-			sp.setID(msg.getEntityId());
 			plane.announceArrival();
 			nm.setEntityState(sp.getPassengerState());
 			break;

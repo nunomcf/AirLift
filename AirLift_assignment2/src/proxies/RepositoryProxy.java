@@ -1,7 +1,6 @@
 package proxies;
 
 import common.Message;
-import common.ServiceProvider;
 import sharedRegions.Repository;
 
 /**
@@ -33,8 +32,7 @@ public class RepositoryProxy implements SharedRegionProxy {
     
     public Message processAndReply(Message msg) {
 		Message nm = new Message();
-		ServiceProvider sp = (ServiceProvider) Thread.currentThread(); 
-
+		
 		switch(msg.getMessageType()) {
 		case INQUEUE:
 			repository.inQueue();

@@ -9,6 +9,7 @@ import common.PilotInterface;
 import common.ServiceProvider;
 import common.States;
 import entities.*;
+import stubs.RepositoryStub;
 
 /**
  *    Departure Airport.
@@ -22,7 +23,7 @@ public class DepartureAirport implements SharedRegion {
 	 * Repository 
 	 * @serialField repo
 	 */
-	private Repository repo;
+	private RepositoryStub repo;
 	
 	/**
 	 * Queue where where passengers arrive at random times to check in for the transfer flight
@@ -79,7 +80,7 @@ public class DepartureAirport implements SharedRegion {
      * 
      * @param repo Repository
      */
-	public DepartureAirport(Repository repo) {
+	public DepartureAirport(RepositoryStub repo) {
 		this.repo = repo;
 		passengersQueue = new LinkedList<>();
 		documents = new boolean[Parameters.N_PASSENGERS];
@@ -99,7 +100,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized void travelToAirport() {
 		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.GOING_TO_AIRPORT);
-		repo.setPassengerState(p.getPassengerId(), States.GOING_TO_AIRPORT, true);
+		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), true);
 		
 		System.out.printf("[PASSENGER %d]: Going to airport...\n", p.getPassengerId());
 		try {
@@ -118,7 +119,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized void waitInQueue() {
 		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
-		repo.setPassengerState(p.getPassengerId(), States.IN_QUEUE, true);
+		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), true);
 		
 		passengersQueue.add(p.getPassengerId());
 		repo.inQueue();
@@ -140,7 +141,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized void showDocuments() {
 		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.IN_QUEUE);
-		repo.setPassengerState(p.getPassengerId(), States.IN_QUEUE, false);
+		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), false);
 		
 		handedDocs[p.getPassengerId()] = true;
 		notifyAll();
@@ -165,7 +166,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized boolean parkAtTransferGate() {
 		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
 		pilot.setState(States.AT_TRANSFER_GATE);
-		repo.setPilotState(States.AT_TRANSFER_GATE);
+		repo.setPilotState(pilot.getPilotState());
 		
 		if(Parameters.N_PASSENGERS - repo.getTotalNumberPassengersTransported() <= Parameters.FLIGHT_MAX_P) {
 			lastFlight = true;
@@ -188,7 +189,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized void informPlaneReadyForBoarding() {
 		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
 		pilot.setState(States.READY_FOR_BOARDING);
-		repo.setPilotState(States.READY_FOR_BOARDING);
+		repo.setPilotState(pilot.getPilotState());
 		
 		System.out.printf("[PILOT]: Inform plane ready for boarding.\n");
 		planeReady = true;
@@ -204,7 +205,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized void flyToDestinationPoint() {
 		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
 		pilot.setState(States.FLYING_FORWARD);
-		repo.setPilotState(States.FLYING_FORWARD);
+		repo.setPilotState(pilot.getPilotState());
 		
 		System.out.printf("[PILOT]: Flying forward...\n");
 		try {
@@ -225,7 +226,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized boolean waitForNextFlight() {
 		HostessInterface h = (ServiceProvider) Thread.currentThread();
 		h.setState(States.WAIT_FOR_NEXT_FLIGHT);
-		repo.setHostessState(States.WAIT_FOR_NEXT_FLIGHT);
+		repo.setHostessState(h.getHostessState());
 		
 		System.out.printf("[HOSTESS]: Waiting for next flight...\n");
 		while(!planeReady) {
@@ -248,7 +249,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized void prepareForPassBoarding() {
 		HostessInterface h = (ServiceProvider) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
-		repo.setHostessState(States.WAIT_FOR_PASSENGER);
+		repo.setHostessState(h.getHostessState());
 		
 		System.out.printf("[HOSTESS]: Prepare for pass boarding...\n");
 		currentFlightPassengers = 0; 
@@ -273,7 +274,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized int checkDocuments() {
 		HostessInterface h = (ServiceProvider) Thread.currentThread();
 		h.setState(States.CHECK_PASSENGER);
-		repo.setHostessState(States.CHECK_PASSENGER);
+		repo.setHostessState(h.getHostessState());
 		
 		askDocument_id = passengersQueue.remove(); // get the passenger at the head of the queue
 		repo.outQueue();
@@ -306,7 +307,7 @@ public class DepartureAirport implements SharedRegion {
 	public synchronized boolean waitForNextPassenger(int currentPassengers,boolean lastF) {
 		HostessInterface h = (ServiceProvider) Thread.currentThread();
 		h.setState(States.WAIT_FOR_PASSENGER);
-		repo.setHostessState(States.WAIT_FOR_PASSENGER);
+		repo.setHostessState(h.getHostessState());
 		
 		System.out.printf("[HOSTESS]: Waiting for next passenger...\n");
 		canBoardPlane[askDocument_id] = true;

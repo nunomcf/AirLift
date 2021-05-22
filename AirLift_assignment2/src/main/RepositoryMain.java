@@ -28,8 +28,8 @@ public class RepositoryMain {
 				serviceProvider.start();
 			} catch(SocketTimeoutException e) {
 			}
-			
 		}
+		System.out.printf("%s: Bye!\n");
 	}
 
 }

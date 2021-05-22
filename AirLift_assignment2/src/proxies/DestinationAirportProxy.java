@@ -37,7 +37,6 @@ public class DestinationAirportProxy implements SharedRegionProxy {
 
 		switch(msg.getMessageType()) {
 		case FLYTODEPARTUREPOINT:
-			sp.setID(msg.getEntityId());
 			destinationAirport.flyToDeparturePoint();
 			nm.setEntityState(sp.getPassengerState());
 			break;
@@ -45,7 +44,6 @@ public class DestinationAirportProxy implements SharedRegionProxy {
 			assert(false);
 			break;
 		}
-			
 		return nm;
 	}
     

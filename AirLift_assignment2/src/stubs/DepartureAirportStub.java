@@ -4,6 +4,7 @@ import common.ClientComm;
 import common.Message;
 import common.MessageType;
 import common.Parameters;
+import entities.Passenger;
 
 public class DepartureAirportStub {
 	
@@ -34,8 +35,11 @@ public class DepartureAirportStub {
 	   *  
 	   */
     public void travelToAirport() {
+    	Passenger p = (Passenger) Thread.currentThread();
+    	
     	Message nm = new Message();
 		nm.setMessageType(MessageType.TRAVELTOAIRPORT);
+		nm.setEntityId(p.getPassengerId());
 
 		ClientComm cc = new ClientComm(serverHostName,serverPort);		
 		cc.open(); 
@@ -50,8 +54,11 @@ public class DepartureAirportStub {
 	   *  
 	   */
     public void waitInQueue() {
+    	Passenger p = (Passenger) Thread.currentThread();
+    	
     	Message nm = new Message();
 		nm.setMessageType(MessageType.WAITINQUEUE);
+		nm.setEntityId(p.getPassengerId());
 
 		ClientComm cc = new ClientComm(serverHostName,serverPort);		
 		cc.open(); 
@@ -66,8 +73,10 @@ public class DepartureAirportStub {
 	   *  
 	   */
     public void showDocuments() {
+    	Passenger p = (Passenger) Thread.currentThread();
     	Message nm = new Message();
 		nm.setMessageType(MessageType.SHOWDOCUMENTS);
+		nm.setEntityId(p.getPassengerId());
 
 		ClientComm cc = new ClientComm(serverHostName,serverPort);		
 		cc.open(); 
@@ -201,8 +210,11 @@ public class DepartureAirportStub {
 		cc.open(); 
 		cc.writeObject(nm);		
 		nm = (Message) cc.readObject();
-
-		return nm.getBoolVal1();
+		
+		boolean a = nm.getBoolVal1();
+		System.out.println("AQUIIIII");
+		System.out.println(a);
+		return a;
     }
 
 }

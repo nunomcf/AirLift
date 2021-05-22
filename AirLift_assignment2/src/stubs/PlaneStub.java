@@ -4,6 +4,7 @@ import common.ClientComm;
 import common.Message;
 import common.MessageType;
 import common.Parameters;
+import entities.Passenger;
 
 public class PlaneStub {
 	/**
@@ -32,8 +33,12 @@ public class PlaneStub {
 	   *  It is called by a Passenger after his documents have been checked by the hostess.
 	   */
     public void boardThePlane() {
+    	Passenger p = (Passenger) Thread.currentThread();
+    	
     	Message nm = new Message();
 		nm.setMessageType(MessageType.BOARDTHEPLANE);
+		nm.setEntityState(p.getPassengerState());
+		nm.setEntityId(p.getPassengerId());
 
 		ClientComm cc = new ClientComm(serverHostName,serverPort);		
 		cc.open(); 
@@ -47,8 +52,11 @@ public class PlaneStub {
 	   *  It is called by a Passenger, blocking until it is waken up by the pilot when the flight reaches the destination airport.
 	   */
     public void waitForEndOfFlight() {
+    	Passenger p = (Passenger) Thread.currentThread();
+    	
     	Message nm = new Message();
 		nm.setMessageType(MessageType.WAITFORENDOFFLIGHT);
+		nm.setEntityId(p.getPassengerId());
 
 		ClientComm cc = new ClientComm(serverHostName,serverPort);		
 		cc.open(); 
@@ -62,8 +70,11 @@ public class PlaneStub {
 	   *  It is called by a Passenger.
 	   */
     public void leaveThePlane() {
+    	Passenger p = (Passenger) Thread.currentThread();
+    	
     	Message nm = new Message();
 		nm.setMessageType(MessageType.LEAVETHEPLANE);
+		nm.setEntityId(p.getPassengerId());
 
 		ClientComm cc = new ClientComm(serverHostName,serverPort);		
 		cc.open(); 
@@ -81,7 +92,8 @@ public class PlaneStub {
     public void informPlaneReadyToTakeOff(int n_passengers) {
     	Message nm = new Message();
 		nm.setMessageType(MessageType.INFORMPLANEREADYTOTAKEOFF);
-
+		nm.setIntVal1(n_passengers);
+		
 		ClientComm cc = new ClientComm(serverHostName,serverPort);		
 		cc.open(); 
 		cc.writeObject(nm);

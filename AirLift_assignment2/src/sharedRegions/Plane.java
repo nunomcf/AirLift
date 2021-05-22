@@ -10,6 +10,7 @@ import common.States;
 import entities.Hostess;
 import entities.Passenger;
 import entities.Pilot;
+import stubs.RepositoryStub;
 
 /**
  *    Plane.
@@ -22,7 +23,7 @@ public class Plane implements SharedRegion{
 	 * Repository 
 	 * @serialField repo
 	 */
-	private Repository repo;
+	private RepositoryStub repo;
 
 	/**
 	 * Flight finished flag
@@ -59,7 +60,7 @@ public class Plane implements SharedRegion{
      * 
      * @param repo Repository
      */
-	public Plane(Repository repo) {
+	public Plane(RepositoryStub repo) {
 		this.repo = repo;
 		passengersSeated = new LinkedList<>();
 	}
@@ -72,7 +73,7 @@ public class Plane implements SharedRegion{
 	public synchronized void boardThePlane() {
 		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
-		repo.setPassengerState(p.getPassengerId(), States.IN_FLIGHT, true);
+		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), true);
 		
 		flight_finished = false;
 		passengersSeated.add(p.getPassengerId());
@@ -90,7 +91,7 @@ public class Plane implements SharedRegion{
 	public synchronized void waitForEndOfFlight() {
 		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
-		repo.setPassengerState(p.getPassengerId(), States.IN_FLIGHT, false);
+		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), false);
 		
 		System.out.printf("[PASSENGER %d]: Waiting for end of flight...\n", p.getPassengerId());
 		while(!flight_finished) {
@@ -108,7 +109,7 @@ public class Plane implements SharedRegion{
 	public synchronized void leaveThePlane() {
 		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.AT_DESTINATION);
-		repo.setPassengerState(p.getPassengerId(), States.AT_DESTINATION, true);
+		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), true);
 		passengersSeated.remove(p.getPassengerId());
 		
 		repo.decPassengersPlane();
@@ -131,7 +132,7 @@ public class Plane implements SharedRegion{
 	public synchronized void informPlaneReadyToTakeOff(int n_passengers) {
 		HostessInterface h = (ServiceProvider) Thread.currentThread();
 		h.setState(States.READY_TO_FLY);
-		repo.setHostessState(States.READY_TO_FLY);
+		repo.setHostessState(h.getHostessState());
 
 		while(n_passengers != n_passengersBoarded) {
 			try {
@@ -154,7 +155,7 @@ public class Plane implements SharedRegion{
 	public synchronized void waitForAllInBoard() {
 		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
 		pilot.setState(States.WAITING_FOR_BOARDING);
-		repo.setPilotState(States.WAITING_FOR_BOARDING);
+		repo.setPilotState(pilot.getPilotState());
 		
 		System.out.printf("[PILOT]: Waiting for boarding...\n");
 		while(!boardingCompleted) {
@@ -175,7 +176,7 @@ public class Plane implements SharedRegion{
 	public synchronized void announceArrival() {
 		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
 		pilot.setState(States.DEBOARDING);
-		repo.setPilotState(States.DEBOARDING);
+		repo.setPilotState(pilot.getPilotState());
 		
 		System.out.printf("[PILOT]: Announce arrival.\n");
 		

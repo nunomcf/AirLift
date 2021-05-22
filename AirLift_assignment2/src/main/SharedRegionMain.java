@@ -25,11 +25,9 @@ public class SharedRegionMain {
 	* @throws IllegalAccessException illegal access exception
 	* @throws InvocationTargetException invocation target exception
 	*/
-	public static void main(String[] args) throws SocketTimeoutException, ClassNotFoundException, NoSuchMethodException, NoSuchFieldException, InstantiationException, IllegalAccessException, InvocationTargetException {
-		// TODO Auto-generated method stub
-		
+	public static void main(String[] args) throws SocketTimeoutException, ClassNotFoundException, NoSuchMethodException, NoSuchFieldException, InstantiationException, IllegalAccessException, InvocationTargetException {		
 		ServerComm serverCom, serverConn;
-		ServiceProvider serviceProvider;
+		ServiceProvider serviceProvider; // service provider agent to address the request of service
 		String regionName = args[0].substring(0, 1).toUpperCase() + args[0].substring(1);
 		
 		Class<?> shRegClass = Class.forName("sharedRegions." + regionName);
@@ -48,12 +46,11 @@ public class SharedRegionMain {
 				serverConn = serverCom.accept();
 				serviceProvider = new ServiceProvider(proxy, serverConn);
 				serviceProvider.start();
-			} catch (SocketTimeoutException e) {}
+				serviceProvider.join();
+			} catch (SocketTimeoutException e) {} 
+			  catch (InterruptedException e) {}
 		}
 		System.out.printf("%s: Bye!\n",regionName);
-		
-		
-
 	}
 
 }

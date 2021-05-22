@@ -52,39 +52,34 @@ public class DepartureAirportProxy implements SharedRegionProxy {
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case PARKATTRANSFERGATE:
-			sp.setID(msg.getEntityId());
-			departureAirport.parkAtTransferGate();
+			nm.setBoolVal1(departureAirport.parkAtTransferGate());
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case INFORMPLANEREADYFORBOARDING:
-			sp.setID(msg.getEntityId());
 			departureAirport.informPlaneReadyForBoarding();
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case FLYTODESTINATIONPOINT:
-			sp.setID(msg.getEntityId());
 			departureAirport.flyToDestinationPoint();
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case WAITFORNEXTFLIGHT:
-			sp.setID(msg.getEntityId());
-			departureAirport.waitForNextFlight();
+			nm.setBoolVal1(departureAirport.waitForNextFlight());
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case PREPAREFORPASSBOARDING:
-			sp.setID(msg.getEntityId());
 			departureAirport.prepareForPassBoarding();
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case CHECKDOCUMENTS:
-			sp.setID(msg.getEntityId());
-			departureAirport.checkDocuments();
+			nm.setIntVal1(departureAirport.checkDocuments());
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case WAITFORNEXTPASSENGER:
-			sp.setID(msg.getEntityId());
-			departureAirport.waitForNextPassenger(1, false); // ????????????????????????????????
-			nm.setEntityState(sp.getPassengerState());
+			nm.setBoolVal1(departureAirport.waitForNextPassenger(msg.getIntVal1(), msg.getBoolVal1()));
+			System.out.println("ULTIMO PASSAGEIRO?????");
+			System.out.println(nm.getBoolVal1());
+			nm.setEntityState(sp.getHostessState());
 			break;
 		default:
 			assert(false);
