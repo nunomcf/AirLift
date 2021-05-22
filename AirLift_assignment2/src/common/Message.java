@@ -7,8 +7,7 @@ import java.io.Serializable;
  * exchanged by the clients and the servers.
  */
 public class Message implements Serializable{
-
-	private static final long serialVersionUID = 2019L;
+	private static final long serialVersionUID = 2021;
 
     /**
      * Entity's Id

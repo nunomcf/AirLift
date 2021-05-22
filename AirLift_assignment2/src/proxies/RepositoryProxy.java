@@ -36,9 +36,40 @@ public class RepositoryProxy implements SharedRegionProxy {
 		ServiceProvider sp = (ServiceProvider) Thread.currentThread(); 
 
 		switch(msg.getMessageType()) {
-			
+		case INQUEUE:
+			repository.inQueue();
+			break;
+		case OUTQUEUE:
+			repository.outQueue();
+			break;
+		case GETTOTALNUMBERPASSENGERSTRANSPORTED:
+			nm.setIntVal1(repository.getTotalNumberPassengersTransported());
+			break;
+		case INCPASSENGERSPLANE:
+			repository.incPassengersPlane();
+			break;
+		case DECPASSENGERSPLANE:
+			repository.decPassengersPlane();
+			break;
+		case INCTOTALNUMBERPASSENGERSTRANSPORTED:
+			repository.incTotalNumberPassengersTransported();
+			break;
+		case DECTOTALNUMBERPASSENGERSTRANSPORTED:
+			repository.decTotalNumberPassengersTransported();
+			break;
+		case SETPASSENGERSTATE:
+			repository.setPassengerState(msg.getIntVal1(), msg.getEntityState(), msg.getBoolVal1());
+			break;
+		case SETPILOTSTATE:
+			repository.setPilotState(msg.getEntityState());
+			break;
+		case SETHOSTESSSTATE:
+			repository.setHostessState(msg.getEntityState());
+			break;
+		default:
+			assert(false);
+			break;
 		}
-			
 		return nm;
 	}
     

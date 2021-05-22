@@ -2,6 +2,10 @@ package sharedRegions;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import common.HostessInterface;
+import common.PassengerInterface;
+import common.PilotInterface;
+import common.ServiceProvider;
 import common.States;
 import entities.Hostess;
 import entities.Passenger;
@@ -66,7 +70,7 @@ public class Plane implements SharedRegion{
 	   *  It is called by a Passenger after his documents have been checked by the hostess.
 	   */
 	public synchronized void boardThePlane() {
-		Passenger p = (Passenger) Thread.currentThread();
+		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
 		repo.setPassengerState(p.getPassengerId(), States.IN_FLIGHT, true);
 		
@@ -84,7 +88,7 @@ public class Plane implements SharedRegion{
 	   *  It is called by a Passenger, blocking until it is waken up by the pilot when the flight reaches the destination airport.
 	   */
 	public synchronized void waitForEndOfFlight() {
-		Passenger p = (Passenger) Thread.currentThread();
+		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.IN_FLIGHT);
 		repo.setPassengerState(p.getPassengerId(), States.IN_FLIGHT, false);
 		
@@ -102,7 +106,7 @@ public class Plane implements SharedRegion{
 	   *  It is called by a Passenger.
 	   */
 	public synchronized void leaveThePlane() {
-		Passenger p = (Passenger) Thread.currentThread();
+		PassengerInterface p = (ServiceProvider) Thread.currentThread();
 		p.setState(States.AT_DESTINATION);
 		repo.setPassengerState(p.getPassengerId(), States.AT_DESTINATION, true);
 		passengersSeated.remove(p.getPassengerId());
@@ -125,7 +129,7 @@ public class Plane implements SharedRegion{
 	   *  @param n_passengers number of passengers waiting for boarding
 	   */
 	public synchronized void informPlaneReadyToTakeOff(int n_passengers) {
-		Hostess h = (Hostess) Thread.currentThread();
+		HostessInterface h = (ServiceProvider) Thread.currentThread();
 		h.setState(States.READY_TO_FLY);
 		repo.setHostessState(States.READY_TO_FLY);
 
@@ -148,7 +152,7 @@ public class Plane implements SharedRegion{
 	   *  It is called by the Pilot. This operation waits until the hostess informs him that all passengers have boarded the plane.
 	   */
 	public synchronized void waitForAllInBoard() {
-		Pilot pilot = (Pilot) Thread.currentThread();
+		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
 		pilot.setState(States.WAITING_FOR_BOARDING);
 		repo.setPilotState(States.WAITING_FOR_BOARDING);
 		
@@ -169,7 +173,7 @@ public class Plane implements SharedRegion{
 	   *  It is called by Pilot. Notifies the passengers that the flight has reached the destination airport and waits until all passengers left the plane.
 	   */
 	public synchronized void announceArrival() {
-		Pilot pilot = (Pilot) Thread.currentThread();
+		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
 		pilot.setState(States.DEBOARDING);
 		repo.setPilotState(States.DEBOARDING);
 		

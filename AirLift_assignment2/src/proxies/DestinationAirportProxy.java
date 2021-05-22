@@ -36,7 +36,14 @@ public class DestinationAirportProxy implements SharedRegionProxy {
 		ServiceProvider sp = (ServiceProvider) Thread.currentThread(); 
 
 		switch(msg.getMessageType()) {
-			
+		case FLYTODEPARTUREPOINT:
+			sp.setID(msg.getEntityId());
+			destinationAirport.flyToDeparturePoint();
+			nm.setEntityState(sp.getPassengerState());
+			break;
+		default:
+			assert(false);
+			break;
 		}
 			
 		return nm;

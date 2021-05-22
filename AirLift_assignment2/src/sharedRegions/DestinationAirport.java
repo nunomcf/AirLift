@@ -1,8 +1,9 @@
 package sharedRegions;
 import java.util.Random;
 
+import common.PilotInterface;
+import common.ServiceProvider;
 import common.States;
-import entities.Pilot;
 
 /**
  *    Destination Airport.
@@ -33,7 +34,7 @@ public class DestinationAirport implements SharedRegion {
 	   *  
 	   */
 	public synchronized void flyToDeparturePoint() {
-		Pilot pilot = (Pilot) Thread.currentThread();
+		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
 		pilot.setState(States.FLYING_BACK);
 		repo.setPilotState(States.FLYING_BACK);
 		

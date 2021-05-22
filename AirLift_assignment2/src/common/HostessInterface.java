@@ -1,6 +1,4 @@
 package common;
-
-
 /**
  * This interface represents the Hostess as it is needed in the 
  * server side, meant to be implemented by the service provider.

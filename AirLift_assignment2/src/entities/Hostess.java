@@ -2,6 +2,8 @@ package entities;
 import common.Parameters;
 import common.States;
 import sharedRegions.*;
+import stubs.DepartureAirportStub;
+import stubs.PlaneStub;
 
 /**
  *   Hostess thread.
@@ -21,13 +23,13 @@ public class Hostess extends Thread {
 	 * @serialField departure
 	 */
 	
-	private DepartureAirport departure;
+	private DepartureAirportStub departure;
 	
 	/**
 	 * Plane 
 	 * @serialField plane
 	 */
-	private Plane plane;
+	private PlaneStub plane;
 	
 	/**
 	 * LastFlight flag
@@ -41,7 +43,7 @@ public class Hostess extends Thread {
      * @param dep DepartureAirport
      * @param p Plane
      */
-	public Hostess(DepartureAirport dep, Plane p) {
+	public Hostess(DepartureAirportStub dep, PlaneStub p) {
 		this.state = States.WAIT_FOR_NEXT_FLIGHT;
 		this.departure = dep;
 		this.plane = p;

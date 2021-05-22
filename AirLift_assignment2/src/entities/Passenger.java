@@ -1,6 +1,8 @@
 package entities;
 import common.States;
 import sharedRegions.*;
+import stubs.DepartureAirportStub;
+import stubs.PlaneStub;
 
 /**
  *   Passenger thread.
@@ -29,13 +31,13 @@ public class Passenger extends Thread {
 	 * @serialField departure
 	 */
 	
-	private DepartureAirport departure;
+	private DepartureAirportStub departure;
 	
 	/**
 	 * Plane 
 	 * @serialField plane
 	 */
-	private Plane plane;
+	private PlaneStub plane;
 	
 	
 	/**
@@ -45,7 +47,7 @@ public class Passenger extends Thread {
      * @param dep DepartureAirport
      * @param p Plane
      */
-	public Passenger(int id, DepartureAirport dep, Plane p) {
+	public Passenger(int id, DepartureAirportStub dep, PlaneStub p) {
 		this.state = States.GOING_TO_AIRPORT;
 		this.id = id;
 		this.departure = dep;

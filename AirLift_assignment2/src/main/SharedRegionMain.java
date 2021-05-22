@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.SocketTimeoutException;
 
 import common.ServerComm;
+import common.ServiceProvider;
 
 /**
  * Launch shared region server

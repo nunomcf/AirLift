@@ -1,5 +1,5 @@
 /**
  *  AirLift simulation.
  */
-module AirLift_assignment1 {
+module AirLift_assignment2 {
 }

@@ -1,6 +1,9 @@
 package entities;
 import common.States;
 import sharedRegions.*;
+import stubs.DepartureAirportStub;
+import stubs.DestinationAirportStub;
+import stubs.PlaneStub;
 
 /**
  *   Pilot thread.
@@ -20,19 +23,19 @@ public class Pilot extends Thread {
 	 * @serialField departure
 	 */
 	
-	private DepartureAirport departure;
+	private DepartureAirportStub departure;
 	
 	/**
 	 * DestinationAirport 
 	 * @serialField destination
 	 */
-	private DestinationAirport destination;
+	private DestinationAirportStub destination;
 	
 	/**
 	 * Plane 
 	 * @serialField plane
 	 */
-	private Plane plane;
+	private PlaneStub plane;
 	
 	/**
 	 * LastFlight flag
@@ -47,7 +50,7 @@ public class Pilot extends Thread {
      * @param dest DestinationAirport 
      * @param p Plane
      */
-	public Pilot(DepartureAirport dep, DestinationAirport dest, Plane p) {
+	public Pilot(DepartureAirportStub dep, DestinationAirportStub dest, PlaneStub p) {
 		this.state = States.AT_TRANSFER_GATE;
 		this.departure = dep;
 		this.destination = dest;
