@@ -40,6 +40,10 @@ public class DestinationAirportProxy implements SharedRegionProxy {
 			destinationAirport.flyToDeparturePoint();
 			nm.setEntityState(sp.getPassengerState());
 			break;
+		case DSTOPPED:
+			synchronized(this){
+				finished=!finished;
+			}
 		default:
 			assert(false);
 			break;

@@ -1,6 +1,7 @@
 package proxies;
 
 import common.Message;
+import common.Parameters;
 import common.ServiceProvider;
 import sharedRegions.Plane;
 
@@ -20,7 +21,7 @@ public class PlaneProxy implements SharedRegionProxy {
 	 * Simulation has finished 
 	 * @serialField finished
 	 */
-	private boolean finished;
+	private int finished;
 
     /**
      * Plane proxy instantiation
@@ -28,7 +29,7 @@ public class PlaneProxy implements SharedRegionProxy {
      */
     public PlaneProxy(Plane plane) {
 		this.plane = plane;
-		finished=false;
+		finished=0;
     }
     
     public Message processAndReply(Message msg) {
@@ -49,6 +50,9 @@ public class PlaneProxy implements SharedRegionProxy {
 		case LEAVETHEPLANE:
 			sp.setID(msg.getEntityId());
 			plane.leaveThePlane();
+			synchronized(this){
+				finished++;
+			}
 			nm.setEntityState(sp.getPassengerState());
 			break;
 		case INFORMPLANEREADYTOTAKEOFF:			
@@ -72,7 +76,7 @@ public class PlaneProxy implements SharedRegionProxy {
 	}
     
 	public synchronized boolean getSimStatus(){
-		return !finished;
+		return finished!=Parameters.N_PASSENGERS;
 	}
 }
 

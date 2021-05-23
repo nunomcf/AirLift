@@ -16,7 +16,7 @@ public class HostessMain {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.printf("%s: Bye!\n");
+		System.out.printf("Bye!\n");
 	}
 	
 }

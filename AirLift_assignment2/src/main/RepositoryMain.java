@@ -29,7 +29,7 @@ public class RepositoryMain {
 			} catch(SocketTimeoutException e) {
 			}
 		}
-		System.out.printf("%s: Bye!\n");
+		System.out.printf("Bye!\n");
 	}
 
 }

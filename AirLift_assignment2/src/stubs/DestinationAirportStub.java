@@ -42,5 +42,20 @@ public class DestinationAirportStub {
 		cc.writeObject(nm);
 		cc.readObject();
     }
+    
+    /**
+	 * Informs the Destination Airport will exited.
+     */
+	public void dStopped(){
+		Message nm = new Message();
+
+		nm.setMessageType(MessageType.DSTOPPED);
+
+		ClientComm cc = new ClientComm(serverHostName,serverPort);		
+		cc.open(); 
+		cc.writeObject(nm);
+
+		nm = (Message) cc.readObject(); 	
+	}
 
 }

@@ -30,7 +30,7 @@ public class DepartureAirportMain {
 			}
 			
 		}
-		System.out.printf("%s: Bye!\n");
+		System.out.printf("Bye!\n");
 	}
 
 }

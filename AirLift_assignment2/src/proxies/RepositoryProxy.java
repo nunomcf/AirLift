@@ -64,6 +64,10 @@ public class RepositoryProxy implements SharedRegionProxy {
 		case SETHOSTESSSTATE:
 			repository.setHostessState(msg.getEntityState());
 			break;
+		case ISTOPPED:
+			synchronized(this){
+				finished=!finished;
+			}
 		default:
 			assert(false);
 			break;

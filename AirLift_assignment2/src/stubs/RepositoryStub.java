@@ -137,4 +137,19 @@ public class RepositoryStub {
 		cc.writeObject(nm);
 		cc.readObject();
     }
+    
+    /**
+	 * Informs the Repository will exited.
+     */
+	public void iStopped(){
+		Message nm = new Message();
+
+		nm.setMessageType(MessageType.ISTOPPED);
+
+		ClientComm cc = new ClientComm(serverHostName,serverPort);		
+		cc.open(); 
+		cc.writeObject(nm);
+
+		nm = (Message) cc.readObject(); 	
+	}
 }

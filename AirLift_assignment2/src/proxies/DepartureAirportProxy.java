@@ -20,7 +20,7 @@ public class DepartureAirportProxy implements SharedRegionProxy {
 	 * Simulation has finished 
 	 * @serialField finished
 	 */
-	private boolean finished;
+	private int finished;
 
     /**
      * DepartureAirport proxy instantiation
@@ -28,7 +28,7 @@ public class DepartureAirportProxy implements SharedRegionProxy {
      */
     public DepartureAirportProxy(DepartureAirport departureAirport) {
 		this.departureAirport = departureAirport;
-		finished=false;
+		finished=0;
     }
     
     public Message processAndReply(Message msg) {
@@ -79,7 +79,12 @@ public class DepartureAirportProxy implements SharedRegionProxy {
 			nm.setBoolVal1(departureAirport.waitForNextPassenger(msg.getIntVal1(), msg.getBoolVal1()));
 			System.out.println("ULTIMO PASSAGEIRO?????");
 			System.out.println(nm.getBoolVal1());
+			synchronized(this){
+				finished++;
+			}
+			
 			nm.setEntityState(sp.getHostessState());
+			
 			break;
 		default:
 			assert(false);
@@ -90,6 +95,6 @@ public class DepartureAirportProxy implements SharedRegionProxy {
 	}
     
 	public synchronized boolean getSimStatus(){
-		return !finished;
+		return finished!=Parameters.N_PASSENGERS;
 	}
 }
