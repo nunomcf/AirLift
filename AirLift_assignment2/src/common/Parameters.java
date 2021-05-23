@@ -31,52 +31,52 @@ public class Parameters {
    * Departure Airport hostname
 	* @serial departureAirportHostName
    */
-	//public static final String departureAirportHostName = "l040101-ws02.ua.pt";
-	public static final String departureAirportHostName = "localhost";
+	public static final String departureAirportHostName = "l040101-ws04.ua.pt";
+	//public static final String departureAirportHostName = "localhost";
 	
 	/**
    * Departure Airport port
 	* @serial departureAirportPort
    */
-	public static final int departureAirportPort = 4001;
+	public static final int departureAirportPort = 22344;
 
 	/**
    * Plane hostname
 	* @serial planeHostName
    */
-	//public static final String planeHostName = "l040101-ws03.ua.pt";
-	public static final String planeHostName = "localhost";
+	public static final String planeHostName = "l040101-ws06.ua.pt";
+	//public static final String planeHostName = "localhost";
 
 	/**
    * Plane port
 	* @serial planePort
    */
-	public static final int planePort = 4002;
+	public static final int planePort = 22345;
 
 	/**
    * Repository hostname
 	* @serial repositoryHostName
    */	
-	//public static final String repositoryHostName = "l040101-ws01.ua.pt";
-	public static final String repositoryHostName = "localhost";
+	public static final String repositoryHostName = "l040101-ws07.ua.pt";
+	//public static final String repositoryHostName = "localhost";
 
 	/**
    * Repository port
 	* @serial repositoryPort
    */	
-	public static final int repositoryPort = 4003;
+	public static final int repositoryPort = 22346;
 	
 	/**
    * Destination Airport hostname
 	* @serial destinationAirportHostName
    */
-	//public static final String destinationAirportHostName = "l040101-ws06.ua.pt";
-	public static final String destinationAirportHostName = "localhost";
+	public static final String destinationAirportHostName = "l040101-ws05.ua.pt";
+	//public static final String destinationAirportHostName = "localhost";
 	
 	/**
    * Destination Airport port
 	* @serial destinationAirportPort
    */
-	public static final int destinationAirportPort = 4004;
+	public static final int destinationAirportPort = 22347;
 }
 
