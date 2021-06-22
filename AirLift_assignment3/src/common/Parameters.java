@@ -35,49 +35,73 @@ public class Parameters {
 	//public static final String departureAirportHostName = "localhost";
 	
 	/**
-   * Departure Airport port
-	* @serial departureAirportPort
-   */
+	 * Departure Airport port
+	 * @serial departureAirportPort
+	 */
 	public static final int departureAirportPort = 22344;
+	
+	/**
+	 * Departure Airport name entry
+	 * @serial departureAirportNameEntry;
+	 */
+	public static final String departureAirportNameEntry = "departureAirport";
 
 	/**
-   * Plane hostname
-	* @serial planeHostName
-   */
+	 * Plane hostname
+	 * @serial planeHostName
+	 */
 	public static final String planeHostName = "l040101-ws06.ua.pt";
 	//public static final String planeHostName = "localhost";
 
 	/**
-   * Plane port
-	* @serial planePort
-   */
+	 * Plane port
+	 * @serial planePort
+	 */
 	public static final int planePort = 22345;
+	
+	/**
+	 * Plane name entry
+	 * @serial planeNameEntry;
+	 */
+	public static final String planeNameEntry = "plane";
 
 	/**
-   * Repository hostname
-	* @serial repositoryHostName
-   */	
+	 * Repository hostname
+	 * @serial repositoryHostName
+	 */	
 	public static final String repositoryHostName = "l040101-ws07.ua.pt";
 	//public static final String repositoryHostName = "localhost";
 
 	/**
-   * Repository port
-	* @serial repositoryPort
-   */	
+	 * Repository port
+	 * @serial repositoryPort
+	 */	
 	public static final int repositoryPort = 22346;
 	
 	/**
-   * Destination Airport hostname
-	* @serial destinationAirportHostName
-   */
+	 * Repository name entry
+	 * @serial repositoryNameEntry;
+	 */
+	public static final String repositoryNameEntry = "repository";
+	
+	/**
+	 * Destination Airport hostname
+	 * @serial destinationAirportHostName
+	 */
 	public static final String destinationAirportHostName = "l040101-ws05.ua.pt";
 	//public static final String destinationAirportHostName = "localhost";
 	
 	/**
-   * Destination Airport port
-	* @serial destinationAirportPort
-   */
+	 * Destination Airport port
+	 * @serial destinationAirportPort
+	 */
 	public static final int destinationAirportPort = 22347;
+	
+	/**
+	 * Destination Airport name entry
+	 * @serial destinationAirportNameEntry;
+	 */
+	public static final String destinationAirportNameEntry = "destinationAirport";
 	
 	/**
      * Server registry host name.
