@@ -11,21 +11,21 @@ public interface PlaneInterface extends Remote {
 	   *
 	   *  It is called by a Passenger after his documents have been checked by the hostess.
 	   */
-	public void boardThePlane() throws RemoteException;
+	public States boardThePlane(int id) throws RemoteException;
 	
 	/**
 	   *  Operation wait for end of flight.
 	   *
 	   *  It is called by a Passenger, blocking until it is waken up by the pilot when the flight reaches the destination airport.
 	   */
-	public void waitForEndOfFlight() throws RemoteException;
+	public States waitForEndOfFlight(int id) throws RemoteException;
 	
 	/**
 	   *  Operation leave the plane.
 	   *
 	   *  It is called by a Passenger.
 	   */
-	public void leaveThePlane() throws RemoteException;
+	public States leaveThePlane(int id) throws RemoteException;
 	
 	/**
 	   *  Operation inform plane ready to takeoff.
@@ -34,21 +34,21 @@ public interface PlaneInterface extends Remote {
 	   *  As soon as that happens, wakes up the pilot, allowing him to take off.
 	   *  @param n_passengers number of passengers waiting for boarding
 	   */
-	public void informPlaneReadyToTakeOff(int n_passengers) throws RemoteException;
+	public States informPlaneReadyToTakeOff(int n_passengers) throws RemoteException;
 	
 	/**
 	   *  Operation wait for all in board.
 	   *
 	   *  It is called by the Pilot. This operation waits until the hostess informs him that all passengers have boarded the plane.
 	   */
-	public void waitForAllInBoard() throws RemoteException;
+	public States waitForAllInBoard() throws RemoteException;
 
 	/**
 	   *  Operation announce arrival.
 	   *
 	   *  It is called by Pilot. Notifies the passengers that the flight has reached the destination airport and waits until all passengers left the plane.
 	   */
-	public void announceArrival() throws RemoteException;
+	public States announceArrival() throws RemoteException;
 	
 	/**
 	 * Sets the state of hasTerminated if it's time to stop.

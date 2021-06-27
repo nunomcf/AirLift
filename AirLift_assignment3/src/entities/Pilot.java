@@ -1,4 +1,6 @@
 package entities;
+import java.rmi.RemoteException;
+
 import common.States;
 import interfaces.DepartureAirportInterface;
 import interfaces.DestinationAirportInterface;
@@ -62,14 +64,18 @@ public class Pilot extends Thread implements Entity {
 	@Override
 	public void run() {
 		while(true) {
-			lastFlight = departure.parkAtTransferGate();
-			departure.informPlaneReadyForBoarding();
-			plane.waitForAllInBoard();
-			departure.flyToDestinationPoint();
-			plane.announceArrival();
-			destination.flyToDeparturePoint();
-			if(lastFlight) {
-				break;
+			try {
+				lastFlight = departure.parkAtTransferGate().unwrap();
+				setState(departure.informPlaneReadyForBoarding());
+				setState(plane.waitForAllInBoard());
+				setState(departure.flyToDestinationPoint());
+				setState(plane.announceArrival());
+				setState(destination.flyToDeparturePoint());
+				if(lastFlight) {
+					break;
+				}
+			} catch (RemoteException e) {
+				e.printStackTrace();
 			}
 		}
 	}

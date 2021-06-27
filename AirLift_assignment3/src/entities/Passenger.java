@@ -1,8 +1,9 @@
 package entities;
+import java.rmi.RemoteException;
+
 import common.States;
 import interfaces.DepartureAirportInterface;
 import interfaces.PlaneInterface;
-import sharedRegions.*;
 
 /**
  *   Passenger thread.
@@ -67,12 +68,17 @@ public class Passenger extends Thread implements Entity {
 	 */
 	@Override
 	public void run() {
-		departure.travelToAirport();
-		departure.waitInQueue();
-		departure.showDocuments();
-		plane.boardThePlane();
-		plane.waitForEndOfFlight();
-		plane.leaveThePlane();
+		try {
+			setState(departure.travelToAirport(id));
+			setState(departure.waitInQueue(id));
+			setState(departure.showDocuments(id));
+			setState(plane.boardThePlane(id));
+			setState(plane.waitForEndOfFlight(id));
+			setState(plane.leaveThePlane(id));
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	/**

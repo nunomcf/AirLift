@@ -1,16 +1,10 @@
 package sharedRegions;
+import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.Queue;
-
-import common.HostessInterface;
-import common.PassengerInterface;
-import common.PilotInterface;
-import common.ServiceProvider;
 import common.States;
-import entities.Hostess;
-import entities.Passenger;
-import entities.Pilot;
-import stubs.RepositoryStub;
+import interfaces.PlaneInterface;
+import interfaces.RepositoryInterface;
 
 /**
  *    Plane.
@@ -18,12 +12,12 @@ import stubs.RepositoryStub;
  *    It is responsible to keep a continuously updated account of the passengers inside the plane and is implemented as an implicit monitor.
  *    All public methods are executed in mutual exclusion.
  */
-public class Plane implements SharedRegion{
+public class Plane implements PlaneInterface, SharedRegion{
 	/**
 	 * Repository 
 	 * @serialField repo
 	 */
-	private RepositoryStub repo;
+	private RepositoryInterface repo;
 
 	/**
 	 * Flight finished flag
@@ -60,7 +54,7 @@ public class Plane implements SharedRegion{
      * 
      * @param repo Repository
      */
-	public Plane(RepositoryStub repo) {
+	public Plane(RepositoryInterface repo) {
 		this.repo = repo;
 		passengersSeated = new LinkedList<>();
 	}
@@ -69,48 +63,47 @@ public class Plane implements SharedRegion{
 	   *  Operation board the plane.
 	   *
 	   *  It is called by a Passenger after his documents have been checked by the hostess.
+	 * @throws RemoteException 
 	   */
-	public synchronized void boardThePlane() {
-		PassengerInterface p = (ServiceProvider) Thread.currentThread();
-		p.setState(States.IN_FLIGHT);
-		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), true);
+	public synchronized States boardThePlane(int id) throws RemoteException {
+		repo.setPassengerState(id, States.IN_FLIGHT, true);
 		
 		flight_finished = false;
-		passengersSeated.add(p.getPassengerId());
+		passengersSeated.add(id);
 		n_passengersBoarded++;
 		repo.incPassengersPlane();
 		notifyAll();
-		System.out.printf("[PASSENGER %d]: Boarding the plane...\n", p.getPassengerId());
+		System.out.printf("[PASSENGER %d]: Boarding the plane...\n", id);
+		return States.IN_FLIGHT;
 	}
 	
 	/**
 	   *  Operation wait for end of flight.
 	   *
 	   *  It is called by a Passenger, blocking until it is waken up by the pilot when the flight reaches the destination airport.
+	 * @throws RemoteException 
 	   */
-	public synchronized void waitForEndOfFlight() {
-		PassengerInterface p = (ServiceProvider) Thread.currentThread();
-		p.setState(States.IN_FLIGHT);
-		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), false);
+	public synchronized States waitForEndOfFlight(int id) throws RemoteException {
+		repo.setPassengerState(id, States.IN_FLIGHT, false);
 		
-		System.out.printf("[PASSENGER %d]: Waiting for end of flight...\n", p.getPassengerId());
+		System.out.printf("[PASSENGER %d]: Waiting for end of flight...\n", id);
 		while(!flight_finished) {
 			try {
 				wait();
 			} catch (InterruptedException e) {}
 		}
+		return States.IN_FLIGHT;
 	}
 	
 	/**
 	   *  Operation leave the plane.
 	   *
 	   *  It is called by a Passenger.
+	 * @throws RemoteException 
 	   */
-	public synchronized void leaveThePlane() {
-		PassengerInterface p = (ServiceProvider) Thread.currentThread();
-		p.setState(States.AT_DESTINATION);
-		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), true);
-		passengersSeated.remove(p.getPassengerId());
+	public synchronized States leaveThePlane(int id) throws RemoteException {
+		repo.setPassengerState(id, States.AT_DESTINATION, true);
+		passengersSeated.remove(id);
 		
 		repo.decPassengersPlane();
 		repo.incTotalNumberPassengersTransported();
@@ -119,7 +112,8 @@ public class Plane implements SharedRegion{
 			allPassengersLeft = true;
 			notifyAll();
 		}		
-		System.out.printf("[PASSENGER %d]: Leaving the plane...\n", p.getPassengerId());
+		System.out.printf("[PASSENGER %d]: Leaving the plane...\n", id);
+		return States.AT_DESTINATION;
 	}
 	
 	/**
@@ -128,11 +122,10 @@ public class Plane implements SharedRegion{
 	   *  It is called by the Hostess. This operation waits until all passengers of a certain flight have boarded the plane.
 	   *  As soon as that happens, wakes up the pilot, allowing him to take off.
 	   *  @param n_passengers number of passengers waiting for boarding
+	 * @throws RemoteException 
 	   */
-	public synchronized void informPlaneReadyToTakeOff(int n_passengers) {
-		HostessInterface h = (ServiceProvider) Thread.currentThread();
-		h.setState(States.READY_TO_FLY);
-		repo.setHostessState(h.getHostessState());
+	public synchronized States informPlaneReadyToTakeOff(int n_passengers) throws RemoteException {
+		repo.setHostessState(States.READY_TO_FLY);
 
 		while(n_passengers != n_passengersBoarded) {
 			try {
@@ -145,17 +138,17 @@ public class Plane implements SharedRegion{
 		boardingCompleted = true;
 		System.out.printf("[HOSTESS]: Inform plane ready to takeoff...\n");
 		notifyAll();
+		return States.READY_TO_FLY;
 	}
 	
 	/**
 	   *  Operation wait for all in board.
 	   *
 	   *  It is called by the Pilot. This operation waits until the hostess informs him that all passengers have boarded the plane.
+	 * @throws RemoteException 
 	   */
-	public synchronized void waitForAllInBoard() {
-		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
-		pilot.setState(States.WAITING_FOR_BOARDING);
-		repo.setPilotState(pilot.getPilotState());
+	public synchronized States waitForAllInBoard() throws RemoteException {
+		repo.setPilotState(States.WAITING_FOR_BOARDING);
 		
 		System.out.printf("[PILOT]: Waiting for boarding...\n");
 		while(!boardingCompleted) {
@@ -166,17 +159,17 @@ public class Plane implements SharedRegion{
 			}
 		}
 		boardingCompleted = false; // reset condition variable
+		return States.WAITING_FOR_BOARDING;
 	}
 
 	/**
 	   *  Operation announce arrival.
 	   *
 	   *  It is called by Pilot. Notifies the passengers that the flight has reached the destination airport and waits until all passengers left the plane.
+	 * @throws RemoteException 
 	   */
-	public synchronized void announceArrival() {
-		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
-		pilot.setState(States.DEBOARDING);
-		repo.setPilotState(pilot.getPilotState());
+	public synchronized States announceArrival() throws RemoteException {
+		repo.setPilotState(States.DEBOARDING);
 		
 		System.out.printf("[PILOT]: Announce arrival.\n");
 		
@@ -191,5 +184,18 @@ public class Plane implements SharedRegion{
 		}
 		allPassengersLeft = false;
 		System.out.printf("[PILOT]: All passengers have left the plane.\n");
+		return States.DEBOARDING;
+	}
+
+	@Override
+	public void terminate() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getTerminationState() throws RemoteException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

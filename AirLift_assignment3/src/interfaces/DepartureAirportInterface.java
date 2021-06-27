@@ -2,10 +2,11 @@ package interfaces;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Random;
 
-import common.Parameters;
 import common.States;
+import common.StructBool;
+import common.StructInt;
+
 
 public interface DepartureAirportInterface extends Remote {
 	
@@ -15,7 +16,7 @@ public interface DepartureAirportInterface extends Remote {
 	   *  It is called by the Passengers when they travel to the airport in the beginning of the simulation.
 	   *  
 	   */
-	public void travelToAirport() throws RemoteException;
+	public States travelToAirport(int id) throws RemoteException;
 	
 	/**
 	   *  Operation wait in queue.
@@ -23,7 +24,7 @@ public interface DepartureAirportInterface extends Remote {
 	   *  It is called by the Passengers to go to the queue waiting for boarding in the plane.
 	   *  
 	   */
-	public void waitInQueue() throws RemoteException;
+	public States waitInQueue(int id) throws RemoteException;
 	
 	/**
 	   *  Operation show documents.
@@ -31,7 +32,7 @@ public interface DepartureAirportInterface extends Remote {
 	   *  It is called by the Passengers to show the documents to the hostess check them.
 	   *  
 	   */
-	public void showDocuments() throws RemoteException;
+	public States showDocuments(int id) throws RemoteException;
 	
 	/**
 	   *  Operation park at transfer gate.
@@ -41,7 +42,7 @@ public interface DepartureAirportInterface extends Remote {
 	   *  @return true, if is the last flight of the simulation -
 	   *          false, otherwise
 	   */
-	public boolean parkAtTransferGate() throws RemoteException;
+	public StructBool parkAtTransferGate() throws RemoteException;
 	
 	/**
 	   *  Operation inform plane ready for boarding.
@@ -49,7 +50,7 @@ public interface DepartureAirportInterface extends Remote {
 	   *  It is called by the Pilot to signal that the plane is ready for boarding.
 	   *  
 	   */
-	public void informPlaneReadyForBoarding() throws RemoteException;
+	public States informPlaneReadyForBoarding() throws RemoteException;
 	
 	/**
 	   *  Operation fly to the destination point.
@@ -57,7 +58,7 @@ public interface DepartureAirportInterface extends Remote {
 	   *  It is called by the Pilot when the plane is flying to the destination airport.
 	   *  
 	   */
-	public void flyToDestinationPoint() throws RemoteException;
+	public States flyToDestinationPoint() throws RemoteException;
 	
 	/**
 	 *  Operation wait for next flight.
@@ -67,7 +68,7 @@ public interface DepartureAirportInterface extends Remote {
 	 *  @return true, if is the last flight of the simulation -
 	 *          false, otherwise
 	 */
-	public boolean waitForNextFlight() throws RemoteException;
+	public StructBool waitForNextFlight() throws RemoteException;
 	
 	/**
 	   *  Operation prepare for pass boarding.
@@ -75,7 +76,7 @@ public interface DepartureAirportInterface extends Remote {
 	   *  It is called by the Hostess when she is ready to receive passengers from the queue in the plane.
 	   *  
 	   */
-	public void prepareForPassBoarding() throws RemoteException;
+	public States prepareForPassBoarding() throws RemoteException;
 	
 	/**
 	 *  Operation check documents.
@@ -84,7 +85,7 @@ public interface DepartureAirportInterface extends Remote {
 	 *
 	 *  @return currentFlightPassengers in the plane
 	 */
-	public int checkDocuments() throws RemoteException;
+	public StructInt checkDocuments() throws RemoteException;
 	
 	/**
 	 *  Operation wait for next passenger.
@@ -95,7 +96,7 @@ public interface DepartureAirportInterface extends Remote {
 	 *    @return true, if is the last passenger -
 	 *            false, otherwise
 	 */
-	public boolean waitForNextPassenger(int currentPassengers,boolean lastF) throws RemoteException;
+	public StructBool waitForNextPassenger(int currentPassengers,boolean lastF) throws RemoteException;
 	
 	/**
 	 * Sets the state of hasTerminated if it's time to stop.

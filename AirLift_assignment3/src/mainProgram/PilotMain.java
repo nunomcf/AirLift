@@ -10,7 +10,6 @@ import entities.Pilot;
 import interfaces.DepartureAirportInterface;
 import interfaces.DestinationAirportInterface;
 import interfaces.PlaneInterface;
-import interfaces.RepositoryInterface;
 
 public class PilotMain {
 	
@@ -29,7 +28,6 @@ public class PilotMain {
 		DepartureAirportInterface departure=null;
 		DestinationAirportInterface destination=null;
 		PlaneInterface plane=null;
-		RepositoryInterface repository=null;
 
         Registry registry=null;
 		try
@@ -43,7 +41,6 @@ public class PilotMain {
 
 		try
 		{ 
-			repository = (RepositoryInterface) registry.lookup (Parameters.repositoryNameEntry);
 			destination = (DestinationAirportInterface) registry.lookup (Parameters.destinationAirportNameEntry);
 			plane = (PlaneInterface) registry.lookup (Parameters.planeNameEntry);
 			departure = (DepartureAirportInterface) registry.lookup (Parameters.departureAirportNameEntry);

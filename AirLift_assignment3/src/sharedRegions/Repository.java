@@ -1,9 +1,11 @@
 package sharedRegions;
 import java.io.File;
 import java.io.PrintWriter;
+import java.rmi.RemoteException;
 
 import common.Parameters;
 import common.States;
+import interfaces.RepositoryInterface;
 
 import java.io.FileNotFoundException;
 
@@ -11,7 +13,7 @@ import java.io.FileNotFoundException;
  * This datatype implements the general repository of information shared region.
  * The internal state of the simulation is kept here and the logging is handled.
  */
-public class Repository implements SharedRegion{
+public class Repository implements RepositoryInterface, SharedRegion{
 	// State abreviations
     private final String[] stateAbrv = { "ATRG", "RDFB", "WTFB", "FLFW", "DRPP", "FLBK", "WTFL", "WTPS", "CKPS", "RDTF", "GTAP",
             "INQE", "INFL", "ATDS"};
@@ -192,4 +194,16 @@ public class Repository implements SharedRegion{
         }
         return str + "\n\n";
     }
+
+	@Override
+	public void terminate() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getTerminationState() throws RemoteException {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

@@ -1,7 +1,7 @@
 package mainProgram;
 
 import java.io.FileNotFoundException;
-import java.nio.channels.AlreadyBoundException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -13,8 +13,17 @@ import interfaces.Register;
 import interfaces.RepositoryInterface;
 import sharedRegions.Repository;
 
+
+/**
+ * Launch repository server
+ */
 public class RepositoryMain {
-	
+
+	/**
+	* Shared regions main's thread
+	* @param args shared region to be launched
+	* @throws java.io.FileNotFoundException if the log file isn't found 
+	*/
 	public static void main(String args[]) throws FileNotFoundException {
 		/* get location of the generic registry service */
 		String rmiRegHostName =  Parameters.registryHostname;
@@ -136,5 +145,4 @@ public class RepositoryMain {
 		}
 		System.out.printf("Repository: Bye!\n");
 	}
-
 }

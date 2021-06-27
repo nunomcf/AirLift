@@ -1,4 +1,6 @@
 package entities;
+import java.rmi.RemoteException;
+
 import common.Parameters;
 import common.States;
 import interfaces.DepartureAirportInterface;
@@ -56,22 +58,27 @@ public class Hostess extends Thread implements Entity {
 		int currentNumberPassengers;
 		int totalNumberPassengersTransported = 0;
 		boolean canTakeOff = false;
-		while(true) {
-			currentNumberPassengers = 0;
-			if(totalNumberPassengersTransported == Parameters.N_PASSENGERS) break; // no more passengers to transport, end simulation
-			lastFlight = departure.waitForNextFlight();
-			departure.prepareForPassBoarding();	
-			while(currentNumberPassengers < Parameters.FLIGHT_MAX_P) {
-				currentNumberPassengers = departure.checkDocuments();
-				canTakeOff = departure.waitForNextPassenger(currentNumberPassengers,lastFlight);
-				if(canTakeOff) {
-					System.out.printf("\n[CAN TAKE OFF] -> %d\n\n", currentNumberPassengers);
-					break;
+		try {
+			while(true) {
+				currentNumberPassengers = 0;
+				if(totalNumberPassengersTransported == Parameters.N_PASSENGERS) break; // no more passengers to transport, end simulation
+				lastFlight = departure.waitForNextFlight().unwrap();
+				setState(departure.prepareForPassBoarding());	
+				while(currentNumberPassengers < Parameters.FLIGHT_MAX_P) {
+					currentNumberPassengers = departure.checkDocuments().unwrap();
+					canTakeOff = departure.waitForNextPassenger(currentNumberPassengers,lastFlight).unwrap();
+					if(canTakeOff) {
+						System.out.printf("\n[CAN TAKE OFF] -> %d\n\n", currentNumberPassengers);
+						break;
+					}
 				}
+				totalNumberPassengersTransported += currentNumberPassengers;
+				setState(plane.informPlaneReadyToTakeOff(currentNumberPassengers));
 			}
-			totalNumberPassengersTransported += currentNumberPassengers;
-			plane.informPlaneReadyToTakeOff(currentNumberPassengers);
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
+		
 	}
 	
 	/**

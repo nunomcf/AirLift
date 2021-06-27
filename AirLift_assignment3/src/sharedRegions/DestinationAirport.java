@@ -1,10 +1,10 @@
 package sharedRegions;
+import java.rmi.RemoteException;
 import java.util.Random;
 
-import common.PilotInterface;
-import common.ServiceProvider;
 import common.States;
-import stubs.RepositoryStub;
+import interfaces.DestinationAirportInterface;
+import interfaces.RepositoryInterface;
 
 /**
  *    Destination Airport.
@@ -12,19 +12,21 @@ import stubs.RepositoryStub;
  *    Implemented as an implicit monitor.
  *    All public methods are executed in mutual exclusion.
  */
-public class DestinationAirport implements SharedRegion {
+public class DestinationAirport implements DestinationAirportInterface, SharedRegion {
+	
+	private boolean hasTerminated;
 	/**
 	 * Repository 
 	 * @serialField repo
 	 */
-	private RepositoryStub repo;
+	private RepositoryInterface repo;
 	
 	/**
      * DestinationAirport instantiation
      * 
      * @param repo Repository
      */
-	public DestinationAirport(RepositoryStub repo) {
+	public DestinationAirport(RepositoryInterface repo) {
 		this.repo = repo;
 	}
 	
@@ -32,12 +34,11 @@ public class DestinationAirport implements SharedRegion {
 	   *  Operation fly to departure point.
 	   *
 	   *  It is called by a Pilot when he is flying back to the departure point.
+	 * @throws RemoteException 
 	   *  
 	   */
-	public synchronized void flyToDeparturePoint() {
-		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
-		pilot.setState(States.FLYING_BACK);
-		repo.setPilotState(pilot.getPilotState());
+	public synchronized States flyToDeparturePoint() throws RemoteException {
+		repo.setPilotState(States.FLYING_BACK);
 		
 		System.out.printf("[PILOT]: Flying to departure point...\n");
 		try {
@@ -45,5 +46,18 @@ public class DestinationAirport implements SharedRegion {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		return States.FLYING_BACK;
+	}
+
+	@Override
+	public void terminate() throws RemoteException {
+		hasTerminated = true;
+		notifyAll();
+		
+	}
+
+	@Override
+	public boolean getTerminationState() throws RemoteException {
+		return hasTerminated;
 	}
 }

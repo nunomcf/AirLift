@@ -1,14 +1,12 @@
 package sharedRegions;
 
+import java.rmi.RemoteException;
 import java.util.*;
-
-import common.HostessInterface;
 import common.Parameters;
-import common.PassengerInterface;
-import common.PilotInterface;
-import common.ServiceProvider;
 import common.States;
-import entities.*;
+import common.StructBool;
+import common.StructInt;
+import interfaces.DepartureAirportInterface;
 import interfaces.RepositoryInterface;
 
 /**
@@ -18,7 +16,7 @@ import interfaces.RepositoryInterface;
  *    and is implemented as an implicit monitor.
  *    All public methods are executed in mutual exclusion.
  */
-public class DepartureAirport implements SharedRegion {
+public class DepartureAirport implements DepartureAirportInterface, SharedRegion {
 	/**
 	 * Repository 
 	 * @serialField repo
@@ -95,64 +93,64 @@ public class DepartureAirport implements SharedRegion {
 	   *  Operation travel to Airport.
 	   *
 	   *  It is called by the Passengers when they travel to the airport in the beginning of the simulation.
+	 * @throws RemoteException 
 	   *  
 	   */
-	public synchronized void travelToAirport() {
-		PassengerInterface p = (ServiceProvider) Thread.currentThread();
-		p.setState(States.GOING_TO_AIRPORT);
-		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), true);
+	public synchronized States travelToAirport(int id) throws RemoteException {
+		repo.setPassengerState(id, States.GOING_TO_AIRPORT, true);
 		
-		System.out.printf("[PASSENGER %d]: Going to airport...\n", p.getPassengerId());
+		System.out.printf("[PASSENGER %d]: Going to airport...\n", id);
 		try {
 			Thread.sleep((long) (new Random().nextInt(10)));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		return States.GOING_TO_AIRPORT;
 	}
 	
 	/**
 	   *  Operation wait in queue.
 	   *
 	   *  It is called by the Passengers to go to the queue waiting for boarding in the plane.
+	 * @throws RemoteException 
 	   *  
 	   */
-	public synchronized void waitInQueue() {
-		PassengerInterface p = (ServiceProvider) Thread.currentThread();
-		p.setState(States.IN_QUEUE);
-		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), true);
+	public synchronized States waitInQueue(int id) throws RemoteException {
+		repo.setPassengerState(id, States.IN_QUEUE, true);
 		
-		passengersQueue.add(p.getPassengerId());
+		passengersQueue.add(id);
 		repo.inQueue();
 		notifyAll();
-		System.out.printf("[PASSENGER %d]: Waiting in queue...\n", p.getPassengerId());
-		while(!documents[p.getPassengerId()]) {
+		System.out.printf("[PASSENGER %d]: Waiting in queue...\n", id);
+		while(!documents[id]) {
 			try {
 				wait();
 			} catch (InterruptedException e) {}
 		}
+		return States.IN_QUEUE;
 	}
 	
 	/**
 	   *  Operation show documents.
 	   *
 	   *  It is called by the Passengers to show the documents to the hostess check them.
+	 * @throws RemoteException 
 	   *  
 	   */
-	public synchronized void showDocuments() {
-		PassengerInterface p = (ServiceProvider) Thread.currentThread();
-		p.setState(States.IN_QUEUE);
-		repo.setPassengerState(p.getPassengerId(), p.getPassengerState(), false);
+	public synchronized States showDocuments(int id) throws RemoteException {
+		repo.setPassengerState(id, States.IN_QUEUE, false);
 		
-		handedDocs[p.getPassengerId()] = true;
+		handedDocs[id] = true;
 		notifyAll();
-		while(!canBoardPlane[p.getPassengerId()]) {
+		while(!canBoardPlane[id]) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		System.out.printf("[PASSENGER %d]: Showed his documents.\n", p.getPassengerId());
+		System.out.printf("[PASSENGER %d]: Showed his documents.\n", id);
+		return States.IN_QUEUE;
 	}
 	
 	/**
@@ -162,11 +160,11 @@ public class DepartureAirport implements SharedRegion {
 	   *
 	   *  @return true, if is the last flight of the simulation -
 	   *          false, otherwise
+	 * @throws RemoteException 
 	   */
-	public synchronized boolean parkAtTransferGate() {
-		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
-		pilot.setState(States.AT_TRANSFER_GATE);
-		repo.setPilotState(pilot.getPilotState());
+	public synchronized StructBool parkAtTransferGate() throws RemoteException {
+		States state = States.AT_TRANSFER_GATE;
+		repo.setPilotState(States.AT_TRANSFER_GATE);
 		
 		if(Parameters.N_PASSENGERS - repo.getTotalNumberPassengersTransported() <= Parameters.FLIGHT_MAX_P) {
 			lastFlight = true;
@@ -177,35 +175,33 @@ public class DepartureAirport implements SharedRegion {
 			System.out.printf("[PILOT]: Parked at transfer gate (LAST FLIGHT = FALSE).\n");
 			
 		}
-		return lastFlight;
+		return new StructBool(state, lastFlight);
 	}
 	
 	/**
 	   *  Operation inform plane ready for boarding.
 	   *
 	   *  It is called by the Pilot to signal that the plane is ready for boarding.
+	 * @throws RemoteException 
 	   *  
 	   */
-	public synchronized void informPlaneReadyForBoarding() {
-		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
-		pilot.setState(States.READY_FOR_BOARDING);
-		repo.setPilotState(pilot.getPilotState());
-		
+	public synchronized States informPlaneReadyForBoarding() throws RemoteException {
+		repo.setPilotState(States.READY_FOR_BOARDING);
 		System.out.printf("[PILOT]: Inform plane ready for boarding.\n");
 		planeReady = true;
 		notifyAll();
+		return States.READY_FOR_BOARDING;
 	}
 	
 	/**
 	   *  Operation fly to the destination point.
 	   *
 	   *  It is called by the Pilot when the plane is flying to the destination airport.
+	 * @throws RemoteException 
 	   *  
 	   */
-	public synchronized void flyToDestinationPoint() {
-		PilotInterface pilot = (ServiceProvider) Thread.currentThread();
-		pilot.setState(States.FLYING_FORWARD);
-		repo.setPilotState(pilot.getPilotState());
+	public synchronized States flyToDestinationPoint() throws RemoteException {
+		repo.setPilotState(States.FLYING_FORWARD);
 		
 		System.out.printf("[PILOT]: Flying forward...\n");
 		try {
@@ -213,6 +209,7 @@ public class DepartureAirport implements SharedRegion {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		return States.FLYING_FORWARD;
 	}
 	
 	/**
@@ -222,11 +219,11 @@ public class DepartureAirport implements SharedRegion {
 	 *
 	 *  @return true, if is the last flight of the simulation -
 	 *          false, otherwise
+	 * @throws RemoteException 
 	 */
-	public synchronized boolean waitForNextFlight() {
-		HostessInterface h = (ServiceProvider) Thread.currentThread();
-		h.setState(States.WAIT_FOR_NEXT_FLIGHT);
-		repo.setHostessState(h.getHostessState());
+	public synchronized StructBool waitForNextFlight() throws RemoteException {
+		States state = States.WAIT_FOR_NEXT_FLIGHT;
+		repo.setHostessState(States.WAIT_FOR_NEXT_FLIGHT);
 		
 		System.out.printf("[HOSTESS]: Waiting for next flight...\n");
 		while(!planeReady) {
@@ -237,19 +234,18 @@ public class DepartureAirport implements SharedRegion {
 			}
 		}
 		planeReady = false;
-		return lastFlight;
+		return new StructBool(state, lastFlight);
 	}
 	
 	/**
 	   *  Operation prepare for pass boarding.
 	   *
 	   *  It is called by the Hostess when she is ready to receive passengers from the queue in the plane.
+	 * @throws RemoteException 
 	   *  
 	   */
-	public synchronized void prepareForPassBoarding() {
-		HostessInterface h = (ServiceProvider) Thread.currentThread();
-		h.setState(States.WAIT_FOR_PASSENGER);
-		repo.setHostessState(h.getHostessState());
+	public synchronized States prepareForPassBoarding() throws RemoteException {
+		repo.setHostessState(States.WAIT_FOR_PASSENGER);
 		
 		System.out.printf("[HOSTESS]: Prepare for pass boarding...\n");
 		currentFlightPassengers = 0; 
@@ -262,6 +258,7 @@ public class DepartureAirport implements SharedRegion {
 				e.printStackTrace();
 			}
 		}
+		return States.WAIT_FOR_PASSENGER;
 	}
 	
 	/**
@@ -270,11 +267,11 @@ public class DepartureAirport implements SharedRegion {
 	 *  It is called by the Hostess when she checks the documents of the passengers that showed the documents previously.
 	 *
 	 *  @return currentFlightPassengers in the plane
+	 * @throws RemoteException 
 	 */
-	public synchronized int checkDocuments() {
-		HostessInterface h = (ServiceProvider) Thread.currentThread();
-		h.setState(States.CHECK_PASSENGER);
-		repo.setHostessState(h.getHostessState());
+	public synchronized StructInt checkDocuments() throws RemoteException {
+		States state = States.CHECK_PASSENGER;
+		repo.setHostessState(States.CHECK_PASSENGER);
 		
 		askDocument_id = passengersQueue.remove(); // get the passenger at the head of the queue
 		repo.outQueue();
@@ -292,7 +289,7 @@ public class DepartureAirport implements SharedRegion {
 		}
 		System.out.printf("[HOSTESS]: Passenger %d handed this documents...\n", askDocument_id);
 		currentFlightPassengers += 1;
-		return currentFlightPassengers;
+		return new StructInt(state, currentFlightPassengers);
 	}
 	
 	/**
@@ -303,11 +300,11 @@ public class DepartureAirport implements SharedRegion {
 	 *	  @param  lastF last Flight Flag
 	 *    @return true, if is the last passenger -
 	 *            false, otherwise
+	 * @throws RemoteException 
 	 */
-	public synchronized boolean waitForNextPassenger(int currentPassengers,boolean lastF) {
-		HostessInterface h = (ServiceProvider) Thread.currentThread();
-		h.setState(States.WAIT_FOR_PASSENGER);
-		repo.setHostessState(h.getHostessState());
+	public synchronized StructBool waitForNextPassenger(int currentPassengers,boolean lastF) throws RemoteException {
+		States state = States.WAIT_FOR_PASSENGER;
+		repo.setHostessState(States.WAIT_FOR_PASSENGER);
 		
 		System.out.printf("[HOSTESS]: Waiting for next passenger...\n");
 		canBoardPlane[askDocument_id] = true;
@@ -319,7 +316,7 @@ public class DepartureAirport implements SharedRegion {
 			if(currentPassengers == numberPassengersLeft) {
 				// if it is the last flight and there are no more passengers, can take off
 				System.out.printf("[HOSTESS]: LAST FLIGHT, can take off with %d passengers\n\n", currentPassengers);
-				return true;
+				return new StructBool(state, true);
 			}
 			else {
 				// otherwise, wait for another passenger
@@ -331,19 +328,19 @@ public class DepartureAirport implements SharedRegion {
 					}
 				}
 				System.out.printf("[HOSTESS]: LAST FLIGHT, wait for more passengers\n\n", currentPassengers);
-				return false;
+				return new StructBool(state, false);
 			}
 		} 
 		else {
 			if(currentPassengers >= Parameters.FLIGHT_MIN_P) {
 				if(passengersQueue.size() == 0) {
-					return true;
+					return new StructBool(state, true);
 				} 
 				else {
 					if(currentPassengers == Parameters.FLIGHT_MAX_P) {
-						return true;
+						return new StructBool(state, true);
 					}
-					return false;
+					return new StructBool(state, false);
 				}
 			}
 			else {
@@ -354,8 +351,20 @@ public class DepartureAirport implements SharedRegion {
 						e.printStackTrace();
 					}
 				}
-				return false;
+				return new StructBool(state, false);
 			}
 		}
+	}
+
+	@Override
+	public void terminate() throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getTerminationState() throws RemoteException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
